@@ -1,6 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -15,24 +13,27 @@ export function activate(context: vscode.ExtensionContext) {
 			{
 				enableScripts: true,
 				localResourceRoots: [qmlEngineFolder]
-			}
+			} 
 		);
 
-		// Disk paths
-		const qtLoaderJs         = vscode.Uri.file(path.join(context.extensionPath, 'wasmQmlEngine', 'qtloader.js')); 
-		const qtLogoSvg          = vscode.Uri.file(path.join(context.extensionPath, 'wasmQmlEngine', 'qtlogo.svg'));
+		const indexHtmlPath = vscode.Uri.joinPath(qmlEngineFolder, 'index.html');
 
-		const indexHtmlPath = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine', 'index.html');
-		let htmlContent = fs.readFileSync(indexHtmlPath.fsPath, 'utf8');
+		vscode.workspace.fs.readFile(indexHtmlPath).then((fileData) => {
+			let htmlContent = fileData.toString();
+			
+			// Disk paths
+			const qtLoaderJs = vscode.Uri.joinPath(qmlEngineFolder, 'qtloader.js');
+			const qtLogoSvg  = vscode.Uri.joinPath(qmlEngineFolder, 'qtlogo.svg');
 
-		// Replace paths for startup js script and logo svg
-		htmlContent = htmlContent.replace('qtloader.js',         panel.webview.asWebviewUri(qtLoaderJs).toString());
-		htmlContent = htmlContent.replace('qtlogo.svg',          panel.webview.asWebviewUri(qtLogoSvg).toString());
-		
-		// Add proper path prefix for loading QtWasmTemplate.js and QtWasmTemplate.wasm
-		htmlContent = htmlContent.replace('vscode_extension_uri_qml_engine_path', panel.webview.asWebviewUri(qmlEngineFolder).toString());
+			// Replace paths for startup js script and logo svg
+			htmlContent = htmlContent.replace('qtloader.js', panel.webview.asWebviewUri(qtLoaderJs).toString());
+			htmlContent = htmlContent.replace('qtlogo.svg', panel.webview.asWebviewUri(qtLogoSvg).toString());
 
-		panel.webview.html = htmlContent;
+			// Add proper path prefix for loading QtWasmTemplate.js and QtWasmTemplate.wasm
+			htmlContent = htmlContent.replace('vscode_extension_uri_qml_engine_path', panel.webview.asWebviewUri(qmlEngineFolder).toString());
+
+			panel.webview.html = htmlContent;
+		});
 	});
 
 	context.subscriptions.push(disposable);
