@@ -67,7 +67,9 @@
         window.addEventListener('message', function(event) {
           const data = event.data;
             if (data.type === 'update') {
-              console.log("update", data.text);
+              if (!qtLoader) return;
+              if (!qtLoader.module) return;
+              qtLoader.module().newCodeHandler(data.text);
             }
         });
     </script>
