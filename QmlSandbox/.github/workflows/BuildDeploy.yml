@@ -1,0 +1,86 @@
+name: Build and deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  QT_ROOT: ${{ github.workspace }}/Qt
+  QT_VERSION: 6.5.1
+  WASM_VERSION: 3.1.25
+  AQT_VERSION: ==3.1.6
+
+jobs:
+  build:
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        build_profile: [wasm_release]
+
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install latest cmake and ninja
+      uses: lukka/get-cmake@latest
+
+    - name: Install EmSdk
+      uses: mymindstorm/setup-emsdk@v11
+      with:
+        version: ${{ env.WASM_VERSION }}
+        actions-cache-folder: 'emsdk-cache'
+
+    - name: Install Qt for gcc_64 (need for wasm_singlethread proper work)
+      uses: jurplel/install-qt-action@v3
+      with:
+        aqtversion: ${{ env.AQT_VERSION }}
+        version: ${{ env.QT_VERSION }}
+        dir: ${{ github.workspace }}
+        modules: 'qtimageformats qt5compat qtshadertools'
+        archives: 'qttranslations qttools qtsvg qtdeclarative qtbase icu'
+        cache: true
+        arch: gcc_64
+
+    - name: Install Qt for wasm_singlethread
+      uses: jurplel/install-qt-action@v3
+      with:
+        aqtversion: ${{ env.AQT_VERSION }}
+        version: ${{ env.QT_VERSION }}
+        dir: ${{ github.workspace }}
+        modules: 'qtimageformats qt5compat qtshadertools'
+        archives: 'qttranslations qttools qtsvg qtdeclarative qtbase icu'
+        cache: true
+        arch: wasm_singlethread
+
+    - name: CMake configure
+      run: cmake --preset wasm_release -Wno-dev
+
+    - name: Cmake build
+      run: cmake --build --preset wasm_release
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: ${{github.workspace}}/build/wasm_release/deploy
+
+  deploy:
+    needs: build
+    # Runs only on push to main branch
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    permissions:
+      id-token: write
+      pages: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to GitHub Pages
+      if: github.event_name == 'push'
+      id: deployment
+      uses: actions/deploy-pages@v1
