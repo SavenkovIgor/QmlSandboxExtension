@@ -1,22 +1,38 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "QmlSandboxExtension" is now active!');
+	let disposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('QmlSandboxExtension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from QmlSandbox!');
+		const qmlEngineFolder = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
+
+		const panel = vscode.window.createWebviewPanel(
+			'QmlSandbox',
+			'QML Sandbox',
+			vscode.ViewColumn.Two,
+			{
+				enableScripts: true,
+				localResourceRoots: [qmlEngineFolder]
+			}
+		);
+
+		// Disk paths
+		const qtLoaderJs         = vscode.Uri.file(path.join(context.extensionPath, 'wasmQmlEngine', 'qtloader.js')); 
+		const qtLogoSvg          = vscode.Uri.file(path.join(context.extensionPath, 'wasmQmlEngine', 'qtlogo.svg'));
+
+		const indexHtmlPath = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine', 'index.html');
+		let htmlContent = fs.readFileSync(indexHtmlPath.fsPath, 'utf8');
+
+		// Replace paths for startup js script and logo svg
+		htmlContent = htmlContent.replace('qtloader.js',         panel.webview.asWebviewUri(qtLoaderJs).toString());
+		htmlContent = htmlContent.replace('qtlogo.svg',          panel.webview.asWebviewUri(qtLogoSvg).toString());
+		
+		// Add proper path prefix for loading QtWasmTemplate.js and QtWasmTemplate.wasm
+		htmlContent = htmlContent.replace('vscode_extension_uri_qml_engine_path', panel.webview.asWebviewUri(qmlEngineFolder).toString());
+
+		panel.webview.html = htmlContent;
 	});
 
 	context.subscriptions.push(disposable);

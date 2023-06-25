@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "QmlSandboxExtension.helloWorld",
-        "title": "Hello World"
+        "command": "QmlSandboxExtension.openQmlSandbox",
+        "title": "Open QML Sandbox"
       }
     ]
   },
