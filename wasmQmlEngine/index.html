@@ -62,7 +62,14 @@
               path: "vscode_extension_uri_qml_engine_path"
           });
           qtLoader.loadEmscriptenModule("QtWasmTemplate");
-      }
+        }
+
+        window.addEventListener('message', function(event) {
+          const data = event.data;
+            if (data.type === 'update') {
+              console.log("update", data.text);
+            }
+        });
     </script>
     <script type="text/javascript" src="qtloader.js"></script>
   </body>
