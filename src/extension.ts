@@ -31,21 +31,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     const editorChange = vscode.window.onDidChangeActiveTextEditor(editor => {
         if (!editor || !mainPanel) return;
+        if (editor.document.languageId !== 'qml') return;
 
-        const qmlFile = editor.document;
-        if (qmlFile.languageId !== 'qml') return;
-
-        updateWebviewContent(qmlFile.getText());
+        updateWebviewContent(editor.document);
     });
 
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
+        const activeEditor = vscode.window.activeTextEditor;
+
         if (!mainPanel) return;
 
-        const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor || activeEditor.document !== event.document) return;
         if (event.document.languageId !== 'qml') return;
 
-        updateWebviewContent(event.document.getText());
+        updateWebviewContent(event.document);
     });
 
     context.subscriptions.push(disposable, editorChange, textChange);
@@ -63,10 +62,13 @@ function createQmlPanel(roots: vscode.Uri[]) {
     );
 }
 
-function updateWebviewContent(qmlFileContent: string) {
+function updateWebviewContent(document: vscode.TextDocument) {
     if (!mainPanel) return;
 
-    console.log('updateWebviewContent', qmlFileContent);
+    mainPanel.webview.postMessage({
+        type: 'update',
+        text: document.getText()
+    });
 }
 
 function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string {
