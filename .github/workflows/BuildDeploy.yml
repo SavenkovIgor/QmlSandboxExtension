@@ -15,10 +15,6 @@ env:
 jobs:
   build:
     timeout-minutes: 30
-    strategy:
-      matrix:
-        build_profile: [wasm_release]
-
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -60,27 +56,4 @@ jobs:
     - name: Cmake build
       run: cmake --build --preset wasm_release
 
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v1
-      with:
-        path: ${{github.workspace}}/build/wasm_release/deploy
-
-  deploy:
-    needs: build
-    # Runs only on push to main branch
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    permissions:
-      id-token: write
-      pages: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Deploy to GitHub Pages
-      if: github.event_name == 'push'
-      id: deployment
-      uses: actions/deploy-pages@v1
+#         path: ${{github.workspace}}/build/wasm_release/deploy
