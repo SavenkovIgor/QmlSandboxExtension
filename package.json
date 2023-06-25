@@ -15,9 +15,19 @@
     "commands": [
       {
         "command": "QmlSandboxExtension.openQmlSandbox",
-        "title": "Open QML Sandbox"
+        "title": "Open QML Sandbox",
+        "icon": "$(eye)"
       }
-    ]
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "QmlSandboxExtension.openQmlSandbox",
+          "group": "navigation",
+          "when": "editorLangId == qml"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
