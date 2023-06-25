@@ -6,9 +6,9 @@ let mainPanel: vscode.WebviewPanel | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
-    let disposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
+    const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
 
-        const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
+    const disposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
 
         if (!mainPanel) {
             mainPanel = createQmlPanel([qmlEngineDir]);
@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
 
-            vscode.workspace.fs.readFile(indexHtmlPath).then((fileData) => {
+            vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
                 if (!mainPanel) return;
                 mainPanel.webview.html = prepareIndexHtmlContent(fileData.toString(), qmlEngineDir);
             });
@@ -29,7 +29,26 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(disposable);
+    const editorChange = vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (!editor || !mainPanel) return;
+
+        const qmlFile = editor.document;
+        if (qmlFile.languageId !== 'qml') return;
+
+        updateWebviewContent(qmlFile.getText());
+    });
+
+    const textChange = vscode.workspace.onDidChangeTextDocument(event => {
+        if (!mainPanel) return;
+
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor || activeEditor.document !== event.document) return;
+        if (event.document.languageId !== 'qml') return;
+
+        updateWebviewContent(event.document.getText());
+    });
+
+    context.subscriptions.push(disposable, editorChange, textChange);
 }
 
 function createQmlPanel(roots: vscode.Uri[]) {
@@ -42,6 +61,12 @@ function createQmlPanel(roots: vscode.Uri[]) {
             localResourceRoots: roots
         }
     );
+}
+
+function updateWebviewContent(qmlFileContent: string) {
+    if (!mainPanel) return;
+
+    console.log('updateWebviewContent', qmlFileContent);
 }
 
 function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string {
@@ -61,5 +86,5 @@ function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-    disposables.forEach((disposable) => disposable.dispose());
+    disposables.forEach(disposable => disposable.dispose());
 }
