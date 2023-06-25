@@ -27,7 +27,15 @@
           "when": "editorLangId == qml"
         }
       ]
-    }
+    },
+    "keybindings": [
+      {
+        "command": "QmlSandboxExtension.openQmlSandbox",
+        "key": "ctrl+shift+q",
+        "mac": "cmd+shift+q",
+        "when": "editorLangId == qml"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
