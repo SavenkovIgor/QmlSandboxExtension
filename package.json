@@ -3,6 +3,7 @@
   "displayName": "QmlSandbox",
   "description": "Qml sandbox for vscode",
   "version": "0.0.1",
+  "publisher": "savenkovigor",
   "engines": {
     "vscode": "^1.79.0"
   },
