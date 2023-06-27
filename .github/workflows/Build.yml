@@ -57,5 +57,3 @@ jobs:
     - name: Cmake build
       working-directory: QmlSandbox
       run: cmake --build --preset wasm_release
-
-#         path: ${{github.workspace}}/build/wasm_release/deploy
