@@ -51,9 +51,11 @@ jobs:
         arch: wasm_singlethread
 
     - name: CMake configure
+      working-directory: QmlSandbox
       run: cmake --preset wasm_release -Wno-dev
 
     - name: Cmake build
+      working-directory: QmlSandbox
       run: cmake --build --preset wasm_release
 
 #         path: ${{github.workspace}}/build/wasm_release/deploy
