@@ -57,3 +57,9 @@ build/
 # Installation of Qt sdk into project folder with aqtinstall
 Qt/
 aqtinstall.log
+
+# Add python environment
+QtBuildEnv/
+
+# Add emsdk environment
+emsdk/

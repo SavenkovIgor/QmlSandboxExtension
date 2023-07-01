@@ -4,8 +4,7 @@ import QtQuick.Controls
 import QtTemplateModule
 
 Window {
-    width: 640
-    height: 480
+    id: window
     visible: true
 
     Connections {
@@ -16,21 +15,51 @@ Window {
         }
     }
 
-    SplitView {
-        id: split
+    Item {
+        id: componentItem
+        property var codeItem: null
         anchors.fill: parent
-        orientation: Qt.Horizontal
 
-        Item {
-            id: componentItem
-            property var codeItem: null
+        function create(text) {
+            if (codeItem)
+                codeItem.destroy()
 
-            function create(text) {
-                if (codeItem)
-                    codeItem.destroy()
-
-                codeItem = Qt.createQmlObject(text, componentItem)
+            try {
+                codeItem = Qt.createQmlObject(text, componentItem);
+                errorsDrawer.close();
+            } catch (error) {
+                errorsDrawer.showError(error.qmlErrors, "UserFile.qml");
             }
+        }
+    }
+
+    Drawer {
+        id: errorsDrawer
+        edge: Qt.BottomEdge
+        width: window.width
+        height: window.height * 0.2
+        interactive: false
+
+        function showError(errorList) {
+            let allErrorsText = ""
+            for (let i = 0; i < errorList.length; ++i) {
+                let error = errorList[i]
+                let errorLine = "[" + error.fileName;
+                if (error.line)
+                    errorLine += ":" + error.line;
+                errorLine += "] " + error.message;
+                allErrorsText += errorLine + "\n";
+            }
+            errorsTextItem.text = allErrorsText;
+            open();
+        }
+
+        Text {
+            id: errorsTextItem
+            padding: 10
+            lineHeightMode: Text.ProportionalHeight
+            lineHeight: 1.5
+            anchors.fill: parent
         }
     }
 }
