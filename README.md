@@ -1,5 +1,7 @@
 # QmlSandboxExtension
 
+![Logo](resources/logo.png)
+
 Welcome to QmlSandboxExtension, a specialized tool designed to streamline
 the development process for QML experiments. This extension enables you
 to preview your QML files directly within Visual Studio Code, eliminating
@@ -13,6 +15,9 @@ the need for context switching and enhancing your productivity.
 a sandbox environment. To open the preview window, simply click on
 the `eye` icon located at the top right corner of your QML file,
 use the `Open QML Sandbox` command, or press `Ctrl+Shift+Q`.
+
+- **Screenshots**: You can take screenshots of your QML scene by clicking on the `camera` icon in the top right corner of the preview window or use
+the `Screenshot QML Scene` command.
 
 ## Build dependencies
 

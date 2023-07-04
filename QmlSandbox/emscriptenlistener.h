@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QImage>
 #include <QObject>
 #include <QQmlEngine>
 
@@ -13,9 +14,12 @@ public:
     static EmscriptenListener &getInstance();
     static EmscriptenListener *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
 
+    Q_INVOKABLE void saveScreenshot(QImage img);
+
 private:
     explicit EmscriptenListener(QObject *parent = nullptr);
 
 signals:
     void newCode(QString code);
+    void screenshot();
 };

@@ -28,6 +28,7 @@
     <div id="screen"></div>
 
     <script type='text/javascript'>
+        const vscode = window.acquireVsCodeApi();
         let qtLoader = undefined;
         function init() {
           var spinner = document.querySelector('#qtspinner');
@@ -64,13 +65,22 @@
           qtLoader.loadEmscriptenModule("QtWasmTemplate");
         }
 
-        window.addEventListener('message', function(event) {
+        window.addEventListener('message', (event) => {
+          if (!qtLoader) return;
+          if (!qtLoader.module) return;
+
           const data = event.data;
-            if (data.type === 'update') {
-              if (!qtLoader) return;
-              if (!qtLoader.module) return;
-              qtLoader.module().newCodeHandler(data.text);
-            }
+          if (data.type === 'update') {
+            qtLoader.module().newCodeHandler(data.text);
+          } else if (data.type === 'screenshot') {
+            qtLoader.module().screenshotHandler();
+          }
+
+          if (!window.receiveScreenshot) {
+            window.receiveScreenshot = (screenshotData) => {
+              vscode.postMessage({type: 'screenshot', data: screenshotData});
+            };
+          }
         });
     </script>
     <script type="text/javascript" src="qtloader.js"></script>
