@@ -7,6 +7,12 @@ node_modules
 # Add python environment
 QtBuildEnv/
 
+# Hide some files in wasmQmlEngine
+wasmQmlEngine/qtlogo.js
+wasmQmlEngine/qtloader.js
+wasmQmlEngine/QtWasmTemplate.js
+wasmQmlEngine/QtWasmTemplate.wasm
+
 # C++ objects and libs
 QmlSandbox/*.slo
 QmlSandbox/*.lo

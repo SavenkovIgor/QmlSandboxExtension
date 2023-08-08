@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import subprocess, os
+import subprocess, os, shutil
 import argparse
 from pathlib import Path
 
@@ -31,6 +31,7 @@ class Project:
         self.name             = self.root.name
         self.venv_root        = self.root / 'QtBuildEnv'
         self.qml_sandbox_root = self.root / 'QmlSandbox'
+        self.wasm_engine_root = self.root / 'wasmQmlEngine'
 
         self.qt_root    = self.qml_sandbox_root / 'Qt'
         self.emsdk_root = self.qml_sandbox_root / 'emsdk'
@@ -71,6 +72,14 @@ class Project:
         # Build
         run('cmake --build --preset=wasm_release', env=env)
 
+    def deliver_qml(self):
+        print(f'---DELIVER qml build to repo root---')
+        deploy_path = self.qml_sandbox_root / 'build/wasm_release/deploy'
+        shutil.copy(deploy_path / 'qtloader.js', self.wasm_engine_root)
+        shutil.copy(deploy_path / 'qtlogo.svg', self.wasm_engine_root)
+        shutil.copy(deploy_path / 'QtWasmTemplate.js', self.wasm_engine_root)
+        shutil.copy(deploy_path / 'QtWasmTemplate.wasm', self.wasm_engine_root)
+
     def remove_build(self):
         print(f'---Remove build folder---')
         delete_if_exist(self.qml_sandbox_root / 'build')
@@ -94,6 +103,7 @@ def main():
     parser.add_argument('--create-venv', action='store_true', help='Create virtual environment')
     parser.add_argument('--install',     action='store_true', help='Install Qt in project folder')
     parser.add_argument('--build-qml',   action='store_true', help='Build project')
+    parser.add_argument('--deliver-qml', action='store_true', help='Copy delivery folder from qml build to wasmQmlEngine folder')
     parser.add_argument('--clear',       action='store_true', help='Clear project')
     parser.add_argument('--clear-all',   action='store_true', help='Clear all')
 
@@ -120,6 +130,9 @@ def main():
 
     if args.build_qml:
         app.build_qml()
+
+    if args.deliver_qml:
+        app.deliver_qml()
 
 
 if __name__ == '__main__':
