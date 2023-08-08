@@ -3,6 +3,8 @@ name: Build and deploy to GitHub Pages
 on:
   push:
     branches: [ "main" ]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   pull_request:
     branches: [ "main" ]
 
@@ -52,8 +54,29 @@ jobs:
 
     - name: CMake configure
       working-directory: QmlSandbox
-      run: cmake --preset wasm_release -Wno-dev
+      run: cmake --preset=wasm_release -Wno-dev
 
     - name: Cmake build
       working-directory: QmlSandbox
-      run: cmake --build --preset wasm_release
+      run: cmake --build --preset=wasm_release
+
+    - name: Deliver qml to wasmQmlEngine folder
+      run: ./project.py --deliver-qml
+
+    - name: GitHub Action for vsce
+      uses: lannonbr/vsce-action@3.0.0
+      with:
+        args: package
+
+    - name: Upload .vsix file
+      uses: actions/upload-artifact@v3
+      with:
+        name: Extension
+        path: '*.vsix'
+
+    - name: Publish to Marketplace
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: lannonbr/vsce-action@3.0.0
+      with:
+        args: publish -p ${{ secrets.VSCE_TOKEN }}
+
