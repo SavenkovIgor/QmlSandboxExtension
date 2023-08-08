@@ -3,3 +3,69 @@ dist
 node_modules
 .vscode-test/
 *.vsix
+
+# Add python environment
+QtBuildEnv/
+
+# C++ objects and libs
+QmlSandbox/*.slo
+QmlSandbox/*.lo
+QmlSandbox/*.o
+QmlSandbox/*.a
+QmlSandbox/*.la
+QmlSandbox/*.lai
+QmlSandbox/*.so
+QmlSandbox/*.so.*
+QmlSandbox/*.dll
+QmlSandbox/*.dylib
+
+# Qt-es
+QmlSandbox/object_script.*.Release
+QmlSandbox/object_script.*.Debug
+QmlSandbox/*_plugin_import.cpp
+QmlSandbox//.qmake.cache
+QmlSandbox//.qmake.stash
+QmlSandbox/*.pro.user
+QmlSandbox/*.pro.user.*
+QmlSandbox/*.qbs.user
+QmlSandbox/*.qbs.user.*
+QmlSandbox/*.moc
+QmlSandbox/moc_*.cpp
+QmlSandbox/moc_*.h
+QmlSandbox/qrc_*.cpp
+QmlSandbox/ui_*.h
+QmlSandbox/*.qmlc
+QmlSandbox/*.jsc
+QmlSandbox/Makefile*
+QmlSandbox/*build-*
+QmlSandbox/*.qm
+QmlSandbox/*.prl
+
+# Qt unit tests
+QmlSandbox/target_wrapper.*
+
+# QtCreator
+QmlSandbox/*.autosave
+
+# QtCreator Qml
+QmlSandbox/*.qmlproject.user
+QmlSandbox/*.qmlproject.user.*
+
+# QtCreator CMake
+QmlSandbox/CMakeLists.txt.user*
+
+# QtCreator 4.8< compilation database
+QmlSandbox/compile_commands.json
+
+# QtCreator local machine specific files for imported projects
+QmlSandbox/*creator.user*
+
+QmlSandbox/conanfiles/
+QmlSandbox/build/
+
+# Installation of Qt sdk into project folder with aqtinstall
+QmlSandbox/Qt/
+aqtinstall.log
+
+# Add emsdk environment
+QmlSandbox/emsdk/
