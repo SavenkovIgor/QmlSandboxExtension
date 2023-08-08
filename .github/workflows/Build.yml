@@ -63,6 +63,9 @@ jobs:
     - name: Deliver qml to wasmQmlEngine folder
       run: ./project.py --deliver-qml
 
+    - name: Npm install
+      run: npm install
+
     - name: GitHub Action for vsce
       uses: lannonbr/vsce-action@3.0.0
       with:
