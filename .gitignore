@@ -7,9 +7,6 @@ node_modules
 # Add python environment
 QtBuildEnv/
 
-# Github actions emsdk folder
-emsdk-cache/
-
 # Hide some files in wasmQmlEngine
 wasmQmlEngine/qtlogo.svg
 wasmQmlEngine/qtloader.js
@@ -77,5 +74,6 @@ aqtinstall.log
 
 # Side libs section
 lib/Qt
-
-QmlSandbox/emsdk/
+lib/emsdk
+## Github actions emsdk cache
+lib/emsdk-cache

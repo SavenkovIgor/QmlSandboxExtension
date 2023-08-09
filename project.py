@@ -26,7 +26,7 @@ class Project:
 
         self.lib        = self.root / 'lib'
         self.qt_root    = self.lib / 'Qt'
-        self.emsdk_root = self.qml_sandbox_root / 'emsdk'
+        self.emsdk_root = self.lib / 'emsdk'
 
     def prepare_env(self):
         env = os.environ.copy()

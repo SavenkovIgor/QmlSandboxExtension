@@ -19,6 +19,6 @@ project.py
 
 # Side libs section
 lib/Qt
-
-# Github actions-only section
-emsdk-cache
+lib/emsdk
+## Github actions emsdk cache
+lib/emsdk-cache

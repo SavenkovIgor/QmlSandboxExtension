@@ -25,10 +25,10 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Install EmSdk
-      uses: mymindstorm/setup-emsdk@v11
+      uses: mymindstorm/setup-emsdk@v12
       with:
         version: ${{ env.WASM_VERSION }}
-        actions-cache-folder: 'emsdk-cache'
+        actions-cache-folder: 'lib/emsdk-cache'
 
     - name: Install Qt for gcc_64 (need for wasm_singlethread proper work)
       uses: jurplel/install-qt-action@v3
