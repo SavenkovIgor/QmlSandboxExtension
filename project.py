@@ -7,9 +7,6 @@ from pathlib import Path
 qt_version = '6.5.1'
 emsdk_version = '3.1.25'
 
-def root() -> Path:
-    return Path(__file__).parent
-
 def run(command: str, env: dict = None):
     if subprocess.call(command, shell=True, executable='/bin/bash', env=env) != 0:
         exit(1)
@@ -19,15 +16,9 @@ def delete_if_exist(path: Path):
         print(f'Delete {path}')
         run(f'rm -rf {path}')
 
-def prepare_env():
-    env = os.environ.copy()
-    env['QT_ROOT'] = str(root() / 'Qt')
-    env['QT_VERSION'] = '6.5.1'
-    return env
-
 class Project:
     def __init__(self):
-        self.root             = root()
+        self.root             = Path(__file__).parent
         self.name             = self.root.name
         self.venv_root        = self.root / 'QtBuildEnv'
         self.qml_sandbox_root = self.root / 'QmlSandbox'
@@ -35,6 +26,12 @@ class Project:
 
         self.qt_root    = self.root / 'Qt'
         self.emsdk_root = self.qml_sandbox_root / 'emsdk'
+
+    def prepare_env(self):
+        env = os.environ.copy()
+        env['QT_ROOT'] = str(self.qt_root)
+        env['QT_VERSION'] = qt_version
+        return env
 
     def install_qt(self):
         print(f'---INSTALL {self.name}---')
@@ -63,7 +60,7 @@ class Project:
 
     def build_qml(self):
         print(f'---BUILD {self.name}---')
-        env = prepare_env()
+        env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
 
         # Configure cmake
