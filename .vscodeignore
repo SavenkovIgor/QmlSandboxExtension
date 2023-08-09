@@ -17,3 +17,6 @@ QtBuildEnv
 aqtinstall.log
 project.py
 .github
+
+# Github actions-only section
+emsdk-cache
