@@ -12,11 +12,13 @@ vsc-extension-quickstart.md
 # My section
 docs
 QmlSandbox
-Qt
 QtBuildEnv
 aqtinstall.log
 project.py
 .github
+
+# Side libs section
+lib/Qt
 
 # Github actions-only section
 emsdk-cache

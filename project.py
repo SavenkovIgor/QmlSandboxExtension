@@ -24,7 +24,8 @@ class Project:
         self.qml_sandbox_root = self.root / 'QmlSandbox'
         self.wasm_engine_root = self.root / 'wasmQmlEngine'
 
-        self.qt_root    = self.root / 'Qt'
+        self.lib        = self.root / 'lib'
+        self.qt_root    = self.lib / 'Qt'
         self.emsdk_root = self.qml_sandbox_root / 'emsdk'
 
     def prepare_env(self):
