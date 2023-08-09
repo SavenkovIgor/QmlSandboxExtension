@@ -48,29 +48,24 @@ class Project:
 
     def install_emsdk(self):
         if not (self.emsdk_root).exists():
-            os.chdir(self.qml_sandbox_root)
             print('Install emsdk')
+            os.chdir(self.emsdk_root.parent)
             run('git clone https://github.com/emscripten-core/emsdk.git')
             os.chdir(self.emsdk_root)
             run(f'./emsdk install {emsdk_version}')
             run(f'./emsdk activate {emsdk_version}')
-            run('source ./emsdk_env.sh')
         else:
-            print('emsdk already installed at ./emsdk')
+            print(f'emsdk already installed at {self.emsdk_root}')
 
     def build_qml(self):
-        print(f'---BUILD {self.name}---')
+        print(f'---Build of qml project---')
         env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
-
-        # Configure cmake
-        run('cmake --preset=wasm_release -Wno-dev', env=env)
-
-        # Build
-        run('cmake --build --preset=wasm_release', env=env)
+        run('cmake --preset=wasm_release -Wno-dev', env=env)  # Configure cmake
+        run('cmake --build --preset=wasm_release', env=env)  # Build
 
     def deliver_qml(self):
-        print(f'---DELIVER qml build to repo root---')
+        print(f'---Deliver qml build to repo root---')
         build_path = self.qml_sandbox_root / 'build/wasm_release'
         shutil.copy(build_path / 'qtloader.js', self.wasm_engine_root)
         shutil.copy(build_path / 'qtlogo.svg', self.wasm_engine_root)
