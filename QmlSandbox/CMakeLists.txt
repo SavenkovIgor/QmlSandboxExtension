@@ -4,9 +4,6 @@
 cmake_minimum_required (VERSION 3.25.0)
 
 project (QtWasmTemplate
-         VERSION 0.1
-         DESCRIPTION "Template for Qt/QML projects for WebAssembly. With GitHub Actions CI/CD and github pages."
-         HOMEPAGE_URL ""
          LANGUAGES CXX)
 
 if (NOT DEFINED ENV{EMSDK})
