@@ -70,7 +70,7 @@ QmlSandbox/conanfiles/
 QmlSandbox/build/
 
 # Installation of Qt sdk into project folder with aqtinstall
-QmlSandbox/Qt/
+Qt/
 aqtinstall.log
 
 # Add emsdk environment

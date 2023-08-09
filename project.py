@@ -21,7 +21,7 @@ def delete_if_exist(path: Path):
 
 def prepare_env():
     env = os.environ.copy()
-    env['QT_ROOT'] = str(root() / 'QmlSandbox/Qt')
+    env['QT_ROOT'] = str(root() / 'Qt')
     env['QT_VERSION'] = '6.5.1'
     return env
 
@@ -33,7 +33,7 @@ class Project:
         self.qml_sandbox_root = self.root / 'QmlSandbox'
         self.wasm_engine_root = self.root / 'wasmQmlEngine'
 
-        self.qt_root    = self.qml_sandbox_root / 'Qt'
+        self.qt_root    = self.root / 'Qt'
         self.emsdk_root = self.qml_sandbox_root / 'emsdk'
 
     def install_qt(self):
