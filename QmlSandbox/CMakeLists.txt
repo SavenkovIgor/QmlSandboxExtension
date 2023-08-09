@@ -31,33 +31,3 @@ qt_add_qml_module (QtWasmTemplate
     QML_FILES Main.qml)
 
 target_link_libraries (QtWasmTemplate PRIVATE Qt6::Quick)
-
-# Preparing for deployment
-message (STATUS "Preparing for deployment")
-set (DEPLOY_DIR "${CMAKE_BINARY_DIR}/deploy/")
-
-# Creating deploy folder
-add_custom_command(TARGET QtWasmTemplate
-                   POST_BUILD COMMAND ${CMAKE_COMMAND} -E
-                   make_directory "${DEPLOY_DIR}")
-
-# Copy of static resources
-set (WASM_RESOURCES)
-
-# Copy of build artefacts
-list (APPEND WASM_RESOURCES "${CMAKE_BINARY_DIR}/qtloader.js")
-list (APPEND WASM_RESOURCES "${CMAKE_BINARY_DIR}/qtlogo.svg")
-list (APPEND WASM_RESOURCES "${CMAKE_BINARY_DIR}/QtWasmTemplate.js")
-list (APPEND WASM_RESOURCES "${CMAKE_BINARY_DIR}/QtWasmTemplate.wasm")
-
-foreach (WASM_RESOURCE ${WASM_RESOURCES})
-    add_custom_command (TARGET QtWasmTemplate
-                        POST_BUILD COMMAND ${CMAKE_COMMAND} -E
-                        copy "${WASM_RESOURCE}" "${DEPLOY_DIR}")
-endforeach ()
-
-add_custom_command (TARGET QtWasmTemplate
-                    POST_BUILD COMMAND ${CMAKE_COMMAND} -E
-                    copy "${CMAKE_BINARY_DIR}/QtWasmTemplate.html" "${DEPLOY_DIR}/index.html")
-
-message ("\nDEPLOY PATH at: ${DEPLOY_DIR}\n")
