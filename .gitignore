@@ -11,7 +11,7 @@ QtBuildEnv/
 emsdk-cache/
 
 # Hide some files in wasmQmlEngine
-wasmQmlEngine/qtlogo.js
+wasmQmlEngine/qtlogo.svg
 wasmQmlEngine/qtloader.js
 wasmQmlEngine/QtWasmTemplate.js
 wasmQmlEngine/QtWasmTemplate.wasm
