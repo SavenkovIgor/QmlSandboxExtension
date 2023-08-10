@@ -143,6 +143,7 @@ Window {
 
     Shortcut {
         sequence: "Esc"
+        enabled: qmlSandboxConsole.isOpen
         context: Qt.ApplicationShortcut
         onActivated: qmlSandboxConsole.close()
     }
