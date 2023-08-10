@@ -4,6 +4,17 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "build-qml",
+            "type": "shell",
+            "command": "./project.py",
+            "args": [
+                "--build-qml",
+                "--deliver-qml"
+            ],
+            "group": "build",
+        },
+        {
+            "label": "npm-watch",
             "type": "npm",
             "script": "watch",
             "problemMatcher": "$tsc-watch",
@@ -11,6 +22,14 @@
             "presentation": {
                 "reveal": "never"
             },
+            "group": "build",
+        },
+        {
+            "label": "build-all",
+            "dependsOn": [
+                "build-qml",
+                "npm-watch"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true
