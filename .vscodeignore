@@ -8,3 +8,19 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# My section
+docs
+QmlSandbox
+aqtinstall.log
+project.py
+.github
+
+# Env section
+env/python
+
+# Side libs section
+lib/Qt
+lib/emsdk
+## Github actions emsdk cache
+lib/emsdk-cache

@@ -4,8 +4,11 @@ node_modules
 .vscode-test/
 *.vsix
 
-# Add python environment
-QtBuildEnv/
+# Hide some files in wasmQmlEngine
+wasmQmlEngine/qtlogo.svg
+wasmQmlEngine/qtloader.js
+wasmQmlEngine/QtWasmTemplate.js
+wasmQmlEngine/QtWasmTemplate.wasm
 
 # C++ objects and libs
 QmlSandbox/*.slo
@@ -64,8 +67,13 @@ QmlSandbox/conanfiles/
 QmlSandbox/build/
 
 # Installation of Qt sdk into project folder with aqtinstall
-QmlSandbox/Qt/
 aqtinstall.log
 
-# Add emsdk environment
-QmlSandbox/emsdk/
+# Env section
+env/python
+
+# Side libs section
+lib/Qt
+lib/emsdk
+## Github actions emsdk cache
+lib/emsdk-cache
