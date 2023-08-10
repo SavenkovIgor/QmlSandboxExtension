@@ -77,10 +77,17 @@ Window {
 
     Drawer {
         id: qmlSandboxConsole
+
+        readonly property bool isOpen: position === 1.0
+
         edge: Qt.BottomEdge
         width: qmlSandboxWindow.width
         height: qmlSandboxWindow.height * 0.2
         interactive: false
+
+        function switchDrawer() {
+            isOpen ? close() : open();
+        }
 
         function showError(errorList) {
             let allErrorsText = ""
@@ -103,5 +110,17 @@ Window {
             lineHeight: 1.5
             anchors.fill: parent
         }
+    }
+
+    Shortcut {
+        sequence: "Ctrl+Shift+I"
+        context: Qt.ApplicationShortcut
+        onActivated: qmlSandboxConsole.switchDrawer()
+    }
+
+    Shortcut {
+        sequence: "Esc"
+        context: Qt.ApplicationShortcut
+        onActivated: qmlSandboxConsole.close()
     }
 }
