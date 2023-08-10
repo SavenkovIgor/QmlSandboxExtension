@@ -36,7 +36,7 @@ Window {
                 codeItem = Qt.createQmlObject(text, qmlSandboxComponentWrapper);
                 qmlSandboxConsole.close();
             } catch (error) {
-                qmlSandboxConsole.showError(error.qmlErrors, "UserFile.qml");
+                qmlSandboxConsole.setErrors(error.qmlErrors);
             }
         }
 
@@ -89,26 +89,35 @@ Window {
             isOpen ? close() : open();
         }
 
-        function showError(errorList) {
-            let allErrorsText = ""
+        function setErrors(errorList) {
+            qmlSandboxConsoleText.clear();
             for (let i = 0; i < errorList.length; ++i) {
-                let error = errorList[i]
-                let errorLine = "[" + error.fileName;
-                if (error.line)
-                    errorLine += ":" + error.line;
-                errorLine += "] " + error.message;
-                allErrorsText += errorLine + "\n";
+                addError(errorList[i]);
             }
-            qmlSandboxConsoleText.text = allErrorsText;
             open();
+        }
+
+        function addError(error) {
+            const errString = errorToString(error.fileName, error.lineNumber, error.message);
+            qmlSandboxConsoleText.addLine(errString);
+        }
+
+        function errorToString(fileName, line, message) {
+            fileName = (!fileName || fileName.endsWith('undefined')) ? 'UserFile.qml' : fileName;
+            const lineStr = line ? `:${line}` : ``;
+            return `[${fileName}${lineStr}] ${message}`;
         }
 
         Text {
             id: qmlSandboxConsoleText
-            padding: 10
+            anchors { fill: parent; margins: 10; }
             lineHeightMode: Text.ProportionalHeight
             lineHeight: 1.5
-            anchors.fill: parent
+            wrapMode: Text.WordWrap
+
+            function addLine(line) { text += `${line}\n`; }
+
+            function clear() { text = ""; }
         }
     }
 
