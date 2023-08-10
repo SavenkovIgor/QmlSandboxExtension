@@ -124,8 +124,43 @@ Window {
         }
 
         Text {
+            text: "Console"
+            anchors {
+                top: parent.top
+                bottom: qmlSandboxConsoleClearButton.bottom
+                left: parent.left
+                right: qmlSandboxConsoleClearButton.left
+            }
+            font.pixelSize: 16
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: 8
+
+            Rectangle {
+                height: 1
+                anchors { left: parent.left; right: parent.right; bottom: parent.bottom; }
+                color: "black"
+            }
+        }
+
+        Button {
+            id: qmlSandboxConsoleClearButton
+            text: "⌄"
+            width: 32
+            height: 32
+            anchors { top: parent.top; right: parent.right; }
+            font.pixelSize: 20
+            onClicked: qmlSandboxConsole.close()
+        }
+
+        Text {
             id: qmlSandboxConsoleText
-            anchors { fill: parent; margins: 10; }
+            anchors {
+                top: qmlSandboxConsoleClearButton.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+            }
+            padding: 10
             lineHeightMode: Text.ProportionalHeight
             lineHeight: 1.5
             wrapMode: Text.WordWrap
