@@ -66,8 +66,12 @@ jobs:
         name: Extension
         path: '*.vsix'
 
-    - name: Publish to Marketplace
+    - name: Scheck versions consistency
       if: startsWith(github.ref, 'refs/tags/v')
+      run: ./project.py --check-version
+
+    - name: Publish to Marketplace
+      if: startsWith(github.ref, 'refs/tags/v') && success()
       uses: lannonbr/vsce-action@3.0.0
       with:
         args: publish -p ${{ secrets.VSCE_TOKEN }}

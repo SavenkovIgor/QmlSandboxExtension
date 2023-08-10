@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-import subprocess, os, shutil
-import argparse
+import subprocess, os, shutil, argparse, json
 from pathlib import Path
 
 qt_version = '6.5.1'
@@ -89,16 +88,25 @@ class Project:
         print(f'---Remove virtual environment---')
         delete_if_exist(self.venv_root)
 
+    def last_version_tag(self):
+        cmd = 'git describe --tags --match="v[0-9\.]*" --abbrev=0'
+        return subprocess.check_output(cmd, shell=True).decode().strip()
+
+    def package_version(self):
+        with open(self.root / 'package.json') as f:
+            return json.load(f)['version']
+
 
 def main():
     parser = argparse.ArgumentParser(description='Project build script')
 
-    parser.add_argument('--create-venv', action='store_true', help='Create virtual environment')
-    parser.add_argument('--install',     action='store_true', help='Install Qt in project folder')
-    parser.add_argument('--build-qml',   action='store_true', help='Build project')
-    parser.add_argument('--deliver-qml', action='store_true', help='Copy delivery folder from qml build to wasmQmlEngine folder')
-    parser.add_argument('--clear',       action='store_true', help='Clear project')
-    parser.add_argument('--clear-all',   action='store_true', help='Clear all')
+    parser.add_argument('--create-venv',   action='store_true', help='Create virtual environment')
+    parser.add_argument('--install',       action='store_true', help='Install Qt in project folder')
+    parser.add_argument('--build-qml',     action='store_true', help='Build project')
+    parser.add_argument('--deliver-qml',   action='store_true', help='Copy delivery folder from qml build to wasmQmlEngine folder')
+    parser.add_argument('--check-version', action='store_true', help='Check if version from tag is equal to version in package.json')
+    parser.add_argument('--clear',         action='store_true', help='Clear project')
+    parser.add_argument('--clear-all',     action='store_true', help='Clear all')
 
     args = parser.parse_args()
 
@@ -141,6 +149,15 @@ def main():
     if args.deliver_qml:
         app.deliver_qml()
 
+    if args.check_version:
+        tag_version = app.last_version_tag()
+        tag_version = tag_version[1:]  # Remove first letter 'v' from version
+        package_version = app.package_version()
+        if tag_version != package_version:
+            print(f'Version in package.json ({package_version}) is not equal to version from tag ({tag_version})')
+            exit(1)
+        else:
+            print(f'Version in package.json ({package_version}) is equal to version from tag ({tag_version})')
 
 if __name__ == '__main__':
     main()
