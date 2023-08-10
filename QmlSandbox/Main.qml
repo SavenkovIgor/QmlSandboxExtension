@@ -61,12 +61,14 @@ Window {
             horizontalPadding: 16
             verticalPadding: 8
             anchors.centerIn: parent
+
             contentItem: Text {
                 text: "Select tab with QML file\nto load it here"
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 28
                 color: "#f5f5f5"
             }
+
             background: Rectangle {
                 color: "#5d5b59"
                 border { color: "#35322f"; width: 2 }
