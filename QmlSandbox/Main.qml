@@ -63,11 +63,22 @@ Window {
             verticalPadding: 8
             anchors.centerIn: parent
 
-            contentItem: Text {
-                text: "Select tab with QML file\nto load it here"
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 28
-                color: "#f5f5f5"
+            contentItem: Column {
+                spacing: 12
+
+                Text {
+                    text: "Select tab with QML file\nto load it here"
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pixelSize: 28
+                    color: "#f5f5f5"
+                }
+
+                Text {
+                    text: "To open/close console press Ctrl+Shift+I"
+                    horizontalAlignment: Text.AlignLeft
+                    font.pixelSize: 16
+                    color: "#f5f5f5"
+                }
             }
 
             background: Rectangle {
