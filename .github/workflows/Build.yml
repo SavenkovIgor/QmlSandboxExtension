@@ -40,6 +40,7 @@ jobs:
         archives: 'qttranslations qttools qtsvg qtdeclarative qtbase icu'
         cache: true
         arch: wasm_singlethread
+        extra: '--autodesktop'
 
     - name: CMake configure
       working-directory: QmlSandbox
