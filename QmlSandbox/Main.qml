@@ -12,7 +12,7 @@ Window {
         target: EmscriptenListener
 
         function onNewCode(code) {
-            qmlSandboxComponentWrapper.create(code)
+            qmlSandboxComponentWrapper.code = code
         }
 
         function onScreenshot() {
@@ -24,16 +24,17 @@ Window {
         id: qmlSandboxComponentWrapper
 
         property var codeItem: null
+        property string code
         readonly property bool hasItem: codeItem != null
 
         anchors.fill: parent
 
-        function create(text) {
+        onCodeChanged: {
             if (codeItem)
                 codeItem.destroy()
 
             try {
-                codeItem = Qt.createQmlObject(text, qmlSandboxComponentWrapper);
+                codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
                 qmlSandboxConsole.close();
             } catch (error) {
                 qmlSandboxConsole.setErrors(error.qmlErrors);
