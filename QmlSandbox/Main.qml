@@ -36,6 +36,7 @@ Window {
             try {
                 codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
                 qmlSandboxConsole.close();
+                qmlSandboxConsole.clear();
             } catch (error) {
                 qmlSandboxConsole.setErrors(error.qmlErrors);
             }
@@ -104,7 +105,7 @@ Window {
         }
 
         function setErrors(errorList) {
-            qmlSandboxConsoleText.clear();
+            clear();
             for (let i = 0; i < errorList.length; ++i) {
                 addError(errorList[i]);
             }
@@ -122,6 +123,8 @@ Window {
             const lineStr = line ? `:${line}` : ``;
             return `[${fileName}${lineStr}] ${message}`;
         }
+
+        function clear() { qmlSandboxConsoleText.clear(); }
 
         Text {
             text: "Console"
