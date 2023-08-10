@@ -12,10 +12,12 @@ vsc-extension-quickstart.md
 # My section
 docs
 QmlSandbox
-QtBuildEnv
 aqtinstall.log
 project.py
 .github
+
+# Env section
+env/python
 
 # Side libs section
 lib/Qt

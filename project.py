@@ -20,7 +20,7 @@ class Project:
     def __init__(self):
         self.root             = Path(__file__).parent
         self.name             = self.root.name
-        self.venv_root        = self.root / 'QtBuildEnv'
+        self.venv_root        = self.root / 'env/python'
         self.qml_sandbox_root = self.root / 'QmlSandbox'
         self.wasm_engine_root = self.root / 'wasmQmlEngine'
 
@@ -37,13 +37,13 @@ class Project:
     def install_qt(self):
         print(f'---INSTALL {self.name}---')
 
-        print('Install aqtinstall tool')
-        run('pip install aqtinstall')
-
         if not (self.qt_root).exists():
             print(f'Installing Qt {qt_version} with aqtinstall tool')
-            run(f'aqt install-qt linux desktop {qt_version} gcc_64 --outputdir {self.qt_root}')
-            run(f'aqt install-qt linux desktop {qt_version} wasm_singlethread --outputdir {self.qt_root}')
+            py_env_prefix = f'{self.venv_root}/bin/python -m '
+            output_dir = f'--outputdir {self.qt_root}'
+            modules = '--modules qtimageformats qt5compat qtshadertools'
+            archives = '--archives qttranslations qttools qtsvg qtdeclarative qtbase icu'
+            run(f'{py_env_prefix} aqt install-qt linux desktop {qt_version} wasm_singlethread {output_dir} {modules} {archives} --autodesktop')
         else:
             print(f'Qt already installed at {self.qt_root}')
 
@@ -102,6 +102,11 @@ def main():
 
     args = parser.parse_args()
 
+    # Print help if no arguments
+    if not any(vars(args).values()):
+        parser.print_help()
+        exit(1)
+
     app = Project()
 
     if args.clear:
@@ -114,8 +119,17 @@ def main():
         app.remove_venv()
 
     if args.create_venv:
-        run('python -m venv QtBuildEnv')
-        print('To activate virtual environment: source QtBuildEnv/bin/activate')
+        print(f'---Create virtual environment---')
+        if not (app.venv_root).exists():
+            run(f'python3 -m venv {app.venv_root}')
+            run(f'{app.venv_root}/bin/pip install --upgrade pip')
+
+            print('Install aqtinstall tool')
+            run(f'{app.venv_root}/bin/pip install aqtinstall')
+            print('To activate virtual environment run:')
+            print(f'source {app.venv_root}/bin/activate')
+        else:
+            print(f'Venv already exists at {app.venv_root}')
 
     if args.install:
         app.install_qt()

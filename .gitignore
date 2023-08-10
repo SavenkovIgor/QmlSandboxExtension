@@ -4,9 +4,6 @@ node_modules
 .vscode-test/
 *.vsix
 
-# Add python environment
-QtBuildEnv/
-
 # Hide some files in wasmQmlEngine
 wasmQmlEngine/qtlogo.svg
 wasmQmlEngine/qtloader.js
@@ -71,6 +68,9 @@ QmlSandbox/build/
 
 # Installation of Qt sdk into project folder with aqtinstall
 aqtinstall.log
+
+# Env section
+env/python
 
 # Side libs section
 lib/Qt
