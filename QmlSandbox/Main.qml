@@ -114,6 +114,7 @@ Window {
         function addError(error) {
             const errString = errorToString(error.fileName, error.lineNumber, error.message);
             qmlSandboxConsoleText.addLine(errString);
+            open();
         }
 
         function errorToString(fileName, line, message) {
