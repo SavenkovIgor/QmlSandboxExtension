@@ -61,8 +61,9 @@ class Project:
         print(f'---Build of qml project---')
         env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
-        run('cmake --preset=wasm_release -Wno-dev', env=env)  # Configure cmake
-        run('cmake --build --preset=wasm_release', env=env)  # Build
+        emsdk_prefix = f'source {self.emsdk_root}/emsdk_env.sh && '
+        run(f'{emsdk_prefix} cmake --preset=wasm_release -Wno-dev', env=env)  # Configure cmake
+        run(f'{emsdk_prefix} cmake --build --preset=wasm_release', env=env)  # Build
 
     def deliver_qml(self):
         print(f'---Deliver qml build to repo root---')
