@@ -4,25 +4,28 @@ import QtQuick.Controls
 import QtTemplateModule
 
 Window {
-    id: window
+    id: qmlSandboxWindow
+
     visible: true
 
     Connections {
         target: EmscriptenListener
 
         function onNewCode(code) {
-            componentItem.create(code)
+            qmlSandboxComponentWrapper.create(code)
         }
 
         function onScreenshot() {
-            componentItem.screenshot()
+            qmlSandboxComponentWrapper.screenshot()
         }
     }
 
     Item {
-        id: componentItem
+        id: qmlSandboxComponentWrapper
+
         property var codeItem: null
         readonly property bool hasItem: codeItem != null
+
         anchors.fill: parent
 
         function create(text) {
@@ -30,10 +33,10 @@ Window {
                 codeItem.destroy()
 
             try {
-                codeItem = Qt.createQmlObject(text, componentItem);
-                errorsDrawer.close();
+                codeItem = Qt.createQmlObject(text, qmlSandboxComponentWrapper);
+                qmlSandboxConsole.close();
             } catch (error) {
-                errorsDrawer.showError(error.qmlErrors, "UserFile.qml");
+                qmlSandboxConsole.showError(error.qmlErrors, "UserFile.qml");
             }
         }
 
@@ -51,7 +54,7 @@ Window {
 
     Rectangle {
         anchors.fill: parent
-        visible: !componentItem.hasItem
+        visible: !qmlSandboxComponentWrapper.hasItem
         color: "#f5f5f5"
 
         Control {
@@ -73,10 +76,10 @@ Window {
     }
 
     Drawer {
-        id: errorsDrawer
+        id: qmlSandboxConsole
         edge: Qt.BottomEdge
-        width: window.width
-        height: window.height * 0.2
+        width: qmlSandboxWindow.width
+        height: qmlSandboxWindow.height * 0.2
         interactive: false
 
         function showError(errorList) {
@@ -89,12 +92,12 @@ Window {
                 errorLine += "] " + error.message;
                 allErrorsText += errorLine + "\n";
             }
-            errorsTextItem.text = allErrorsText;
+            qmlSandboxConsoleText.text = allErrorsText;
             open();
         }
 
         Text {
-            id: errorsTextItem
+            id: qmlSandboxConsoleText
             padding: 10
             lineHeightMode: Text.ProportionalHeight
             lineHeight: 1.5
