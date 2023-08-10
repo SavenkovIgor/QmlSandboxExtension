@@ -12,7 +12,7 @@ Window {
         target: EmscriptenListener
 
         function onNewCode(code) {
-            qmlSandboxComponentWrapper.create(code)
+            qmlSandboxComponentWrapper.code = code
         }
 
         function onScreenshot() {
@@ -24,19 +24,21 @@ Window {
         id: qmlSandboxComponentWrapper
 
         property var codeItem: null
+        property string code
         readonly property bool hasItem: codeItem != null
 
         anchors.fill: parent
 
-        function create(text) {
+        onCodeChanged: {
             if (codeItem)
                 codeItem.destroy()
 
             try {
-                codeItem = Qt.createQmlObject(text, qmlSandboxComponentWrapper);
+                codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
                 qmlSandboxConsole.close();
+                qmlSandboxConsole.clear();
             } catch (error) {
-                qmlSandboxConsole.showError(error.qmlErrors, "UserFile.qml");
+                qmlSandboxConsole.setErrors(error.qmlErrors);
             }
         }
 
@@ -61,12 +63,25 @@ Window {
             horizontalPadding: 16
             verticalPadding: 8
             anchors.centerIn: parent
-            contentItem: Text {
-                text: "Select tab with QML file\nto load it here"
-                horizontalAlignment: Text.AlignHCenter
-                font.pixelSize: 28
-                color: "#f5f5f5"
+
+            contentItem: Column {
+                spacing: 12
+
+                Text {
+                    text: "Select tab with QML file\nto load it here"
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pixelSize: 28
+                    color: "#f5f5f5"
+                }
+
+                Text {
+                    text: "To open/close console press Ctrl+Shift+I"
+                    horizontalAlignment: Text.AlignLeft
+                    font.pixelSize: 16
+                    color: "#f5f5f5"
+                }
             }
+
             background: Rectangle {
                 color: "#5d5b59"
                 border { color: "#35322f"; width: 2 }
@@ -77,31 +92,98 @@ Window {
 
     Drawer {
         id: qmlSandboxConsole
+
+        readonly property bool isOpen: position === 1.0
+
         edge: Qt.BottomEdge
         width: qmlSandboxWindow.width
         height: qmlSandboxWindow.height * 0.2
         interactive: false
 
-        function showError(errorList) {
-            let allErrorsText = ""
+        function switchDrawer() {
+            isOpen ? close() : open();
+        }
+
+        function setErrors(errorList) {
+            clear();
             for (let i = 0; i < errorList.length; ++i) {
-                let error = errorList[i]
-                let errorLine = "[" + error.fileName;
-                if (error.line)
-                    errorLine += ":" + error.line;
-                errorLine += "] " + error.message;
-                allErrorsText += errorLine + "\n";
+                addError(errorList[i]);
             }
-            qmlSandboxConsoleText.text = allErrorsText;
             open();
+        }
+
+        function addError(error) {
+            const errString = errorToString(error.fileName, error.lineNumber, error.message);
+            qmlSandboxConsoleText.addLine(errString);
+            open();
+        }
+
+        function errorToString(fileName, line, message) {
+            fileName = (!fileName || fileName.endsWith('undefined')) ? 'UserFile.qml' : fileName;
+            const lineStr = line ? `:${line}` : ``;
+            return `[${fileName}${lineStr}] ${message}`;
+        }
+
+        function clear() { qmlSandboxConsoleText.clear(); }
+
+        Text {
+            text: "Console"
+            anchors {
+                top: parent.top
+                bottom: qmlSandboxConsoleClearButton.bottom
+                left: parent.left
+                right: qmlSandboxConsoleClearButton.left
+            }
+            font.pixelSize: 16
+            verticalAlignment: Text.AlignVCenter
+            leftPadding: 8
+
+            Rectangle {
+                height: 1
+                anchors { left: parent.left; right: parent.right; bottom: parent.bottom; }
+                color: "black"
+            }
+        }
+
+        Button {
+            id: qmlSandboxConsoleClearButton
+            text: "⌄"
+            width: 32
+            height: 32
+            anchors { top: parent.top; right: parent.right; }
+            font.pixelSize: 20
+            onClicked: qmlSandboxConsole.close()
         }
 
         Text {
             id: qmlSandboxConsoleText
+            anchors {
+                top: qmlSandboxConsoleClearButton.bottom
+                bottom: parent.bottom
+                left: parent.left
+                right: parent.right
+            }
             padding: 10
             lineHeightMode: Text.ProportionalHeight
             lineHeight: 1.5
-            anchors.fill: parent
+            wrapMode: Text.WordWrap
+
+            function addLine(line) { text += `${line}\n`; }
+
+            function clear() { text = ""; }
         }
+    }
+
+    Shortcut {
+        sequence: "Ctrl+Shift+I"
+        context: Qt.ApplicationShortcut
+        onActivated: qmlSandboxConsole.switchDrawer()
+    }
+
+    Shortcut {
+        sequence: "Esc"
+        enabled: qmlSandboxConsole.isOpen
+        context: Qt.ApplicationShortcut
+        onActivated: qmlSandboxConsole.close()
     }
 }
