@@ -11,12 +11,11 @@ Window {
     Connections {
         target: EmscriptenListener
 
-        function onNewCode(code) {
-            qmlSandboxComponentWrapper.code = code
-        }
+        function onNewCode(code) { qmlSandboxComponentWrapper.code = code; }
+        function onScreenshot() { qmlSandboxComponentWrapper.screenshot(); }
 
-        function onScreenshot() {
-            qmlSandboxComponentWrapper.screenshot()
+        function onAddLog(level: string, functionName: string, line: int, msg: string) {
+            qmlSandboxConsole.addLine(level, "qml", functionName, line, msg);
         }
     }
 
@@ -107,21 +106,20 @@ Window {
         function setErrors(errorList) {
             clear();
             for (let i = 0; i < errorList.length; ++i) {
-                addError(errorList[i]);
+                const err = errorList[i];
+                addLine("ERROR", err.fileName, "", err.lineNumber, err.message);
             }
             open();
         }
 
-        function addError(error) {
-            const errString = errorToString(error.fileName, error.lineNumber, error.message);
-            qmlSandboxConsoleText.addLine(errString);
-            open();
+        function formatLog(level, file, funcName, line, msg) {
+            const timestamp = (new Date()).toISOString().substr(11, 12);
+            return `[${timestamp}:${level}:${file}(${line}) ${funcName}] ${msg}`;
         }
 
-        function errorToString(fileName, line, message) {
-            fileName = (!fileName || fileName.endsWith('undefined')) ? 'UserFile.qml' : fileName;
-            const lineStr = line ? `:${line}` : ``;
-            return `[${fileName}${lineStr}] ${message}`;
+        function addLine(level, file, funcName, line, msg) {
+            qmlSandboxConsoleText.addLine(formatLog(level, file, funcName, line, msg));
+            open();
         }
 
         function clear() { qmlSandboxConsoleText.clear(); }

@@ -22,4 +22,5 @@ private:
 signals:
     void newCode(QString code);
     void screenshot();
+    void addLog(QString level, QString function, int line, QString msg);
 };
