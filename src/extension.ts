@@ -150,7 +150,7 @@ function addLog(logData: any) {
     const logLine = `[${timestamp}:${level}:${file}(${line}) ${functionName}] ${msg}`;
 
     outputChannel?.appendLine(logLine);
-    outputChannel?.show();
+    outputChannel?.show(true);
 }
 
 // This method is called when your extension is deactivated
