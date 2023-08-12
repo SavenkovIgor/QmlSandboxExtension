@@ -30,10 +30,11 @@ Window {
 
             try {
                 codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
-                qmlSandboxConsole.close();
-                qmlSandboxConsole.clear();
             } catch (error) {
-                qmlSandboxConsole.setErrors(error.qmlErrors);
+                for (let i = 0; i < error.qmlErrors.length; ++i) {
+                    const err = error.qmlErrors[i];
+                    EmscriptenListener.addLog("ERROR", err.fileName, "", err.lineNumber, err.message);
+                }
             }
         }
 
@@ -70,7 +71,7 @@ Window {
                 }
 
                 Text {
-                    text: "To open/close console press Ctrl+Shift+I"
+                    text: "All qml console output is redirected\nto vscode output tab,\n('QML Sandbox' category)"
                     horizontalAlignment: Text.AlignLeft
                     font.pixelSize: 16
                     color: "#f5f5f5"
@@ -83,101 +84,5 @@ Window {
                 radius: 8
             }
         }
-    }
-
-    Drawer {
-        id: qmlSandboxConsole
-
-        readonly property bool isOpen: position === 1.0
-
-        edge: Qt.BottomEdge
-        width: qmlSandboxWindow.width
-        height: qmlSandboxWindow.height * 0.2
-        interactive: false
-
-        function switchDrawer() {
-            isOpen ? close() : open();
-        }
-
-        function setErrors(errorList) {
-            clear();
-            for (let i = 0; i < errorList.length; ++i) {
-                const err = errorList[i];
-                EmscriptenListener.addLog("ERROR", err.fileName, "", err.lineNumber, err.message);
-            }
-            open();
-        }
-
-        function formatLog(level, file, funcName, line, msg) {
-            const timestamp = (new Date()).toISOString().substr(11, 12);
-            return `[${timestamp}:${level}:${file}(${line}) ${funcName}] ${msg}`;
-        }
-
-        function addLine(level, file, funcName, line, msg) {
-            qmlSandboxConsoleText.addLine(formatLog(level, file, funcName, line, msg));
-            open();
-        }
-
-        function clear() { qmlSandboxConsoleText.clear(); }
-
-        Text {
-            text: "Console"
-            anchors {
-                top: parent.top
-                bottom: qmlSandboxConsoleClearButton.bottom
-                left: parent.left
-                right: qmlSandboxConsoleClearButton.left
-            }
-            font.pixelSize: 16
-            verticalAlignment: Text.AlignVCenter
-            leftPadding: 8
-
-            Rectangle {
-                height: 1
-                anchors { left: parent.left; right: parent.right; bottom: parent.bottom; }
-                color: "black"
-            }
-        }
-
-        Button {
-            id: qmlSandboxConsoleClearButton
-            text: "⌄"
-            width: 32
-            height: 32
-            anchors { top: parent.top; right: parent.right; }
-            font.pixelSize: 20
-            onClicked: qmlSandboxConsole.close()
-        }
-
-        Text {
-            id: qmlSandboxConsoleText
-            anchors {
-                top: qmlSandboxConsoleClearButton.bottom
-                bottom: parent.bottom
-                left: parent.left
-                right: parent.right
-            }
-            padding: 10
-            lineHeightMode: Text.ProportionalHeight
-            lineHeight: 1.5
-            wrapMode: Text.WordWrap
-
-            function addLine(line) { text += `${line}\n`; }
-
-            function clear() { text = ""; }
-        }
-    }
-
-    Shortcut {
-        sequence: "Ctrl+Shift+I"
-        context: Qt.ApplicationShortcut
-        onActivated: qmlSandboxConsole.switchDrawer()
-    }
-
-    Shortcut {
-        sequence: "Esc"
-        enabled: qmlSandboxConsole.isOpen
-        context: Qt.ApplicationShortcut
-        onActivated: qmlSandboxConsole.close()
     }
 }
