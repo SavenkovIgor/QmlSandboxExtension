@@ -14,6 +14,7 @@ public:
     static EmscriptenListener &getInstance();
     static EmscriptenListener *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
 
+    Q_INVOKABLE void addLog(QString level, QString file, QString function, int line, QString msg);
     Q_INVOKABLE void saveScreenshot(QImage img);
 
 private:
@@ -22,5 +23,4 @@ private:
 signals:
     void newCode(QString code);
     void screenshot();
-    void addLog(QString level, QString function, int line, QString msg);
 };

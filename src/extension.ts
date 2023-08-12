@@ -4,9 +4,13 @@ let disposables: vscode.Disposable[] = [];
 
 let mainPanel: vscode.WebviewPanel | null = null;
 
+let outputChannel: vscode.OutputChannel | null = null;
+
 export function activate(context: vscode.ExtensionContext) {
 
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
+
+    outputChannel = vscode.window.createOutputChannel('QML Sandbox');
 
     const qmlSandboxDisposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
         if (mainPanel) {
@@ -24,25 +28,18 @@ export function activate(context: vscode.ExtensionContext) {
         }, null, context.subscriptions);
 
         mainPanel.webview.onDidReceiveMessage(message => {
-            if (message?.type === 'screenshot') {
-                // Save as png file
-                const savePathUri = screenshotRootPath();
+            switch (message?.type) {
+                case 'screenshot':
+                    saveScreenshot(message.data);
+                    break;
 
-                if (!savePathUri) {
-                    vscode.window.showErrorMessage('Cannot save screenshot');
-                    return;
-                }
+                case 'addLog':
+                    addLog(message.data);
+                    break;
 
-                let options = {
-                    defaultUri: vscode.Uri.joinPath(savePathUri, 'screenshot.png'),
-                    title: 'Save screenshot',
-                }
-                vscode.window.showSaveDialog(options).then(fileUri => {
-                    if (!fileUri) return;
-                    vscode.workspace.fs.writeFile(fileUri, Buffer.from(message.data, 'base64')).then(() => {
-                        vscode.window.showInformationMessage('Screenshot saved');
-                    });
-                });
+                default:
+                    console.warn('Unknown message type', message?.type);
+                    break;
             }
         }, null, context.subscriptions);
 
@@ -125,6 +122,35 @@ function screenshotRootPath(): vscode.Uri | undefined {
     }
 
     return savePathUri;
+}
+
+function saveScreenshot(pngData: string) {
+    const savePathUri = screenshotRootPath();
+
+    if (!savePathUri) {
+        vscode.window.showErrorMessage('Cannot save screenshot');
+        return;
+    }
+
+    let options = {
+        defaultUri: vscode.Uri.joinPath(savePathUri, 'screenshot.png'),
+        title: 'Save screenshot',
+    }
+    vscode.window.showSaveDialog(options).then(fileUri => {
+        if (!fileUri) return;
+        vscode.workspace.fs.writeFile(fileUri, Buffer.from(pngData, 'base64')).then(() => {
+            vscode.window.showInformationMessage('Screenshot saved');
+        });
+    });
+}
+
+function addLog(logData: any) {
+    const {level, file, functionName, line, msg} = logData;
+    const timestamp = (new Date()).toISOString().substring(11, 23);
+    const logLine = `[${timestamp}:${level}:${file}(${line}) ${functionName}] ${msg}`;
+
+    outputChannel?.appendLine(logLine);
+    outputChannel?.show();
 }
 
 // This method is called when your extension is deactivated

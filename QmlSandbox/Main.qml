@@ -13,10 +13,6 @@ Window {
 
         function onNewCode(code) { qmlSandboxComponentWrapper.code = code; }
         function onScreenshot() { qmlSandboxComponentWrapper.screenshot(); }
-
-        function onAddLog(level: string, functionName: string, line: int, msg: string) {
-            qmlSandboxConsole.addLine(level, "qml", functionName, line, msg);
-        }
     }
 
     Item {
@@ -107,7 +103,7 @@ Window {
             clear();
             for (let i = 0; i < errorList.length; ++i) {
                 const err = errorList[i];
-                addLine("ERROR", err.fileName, "", err.lineNumber, err.message);
+                EmscriptenListener.addLog("ERROR", err.fileName, "", err.lineNumber, err.message);
             }
             open();
         }

@@ -5,26 +5,23 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
 
+const char* qtLogLevelToString(QtMsgType type)
+{
+    switch (type) {
+    case QtDebugMsg:    return "DEBUG   ";
+    case QtInfoMsg:     return "INFO    ";
+    case QtWarningMsg:  return "WARNING ";
+    case QtCriticalMsg: return "CRITICAL";
+    case QtFatalMsg:    return "FATAL   ";
+    }
+    return "UNKNOWN";
+}
+
 void logMessageCatcher(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QString logLevelName = qtLogLevelToString(type);
     auto& emscripten = EmscriptenListener::getInstance();
-    switch (type) {
-    case QtDebugMsg:
-        emit emscripten.addLog("DEBUG", context.function, context.line, msg);
-        break;
-    case QtInfoMsg:
-        emit emscripten.addLog("INFO", context.function, context.line, msg);
-        break;
-    case QtWarningMsg:
-        emit emscripten.addLog("WARNING", context.function, context.line, msg);
-        break;
-    case QtCriticalMsg:
-        emit emscripten.addLog("CRITICAL", context.function, context.line, msg);
-        break;
-    case QtFatalMsg:
-        emit emscripten.addLog("FATAL", context.function, context.line, msg);
-        break;
-    }
+    emscripten.addLog(logLevelName, context.file, context.function, context.line, msg);
 }
 
 void newCodeHandler(std::string code)
@@ -55,6 +52,10 @@ EmscriptenListener &EmscriptenListener::getInstance()
 EmscriptenListener *EmscriptenListener::create([[maybe_unused]] QQmlEngine *qmlEngine, [[maybe_unused]] QJSEngine *jsEngine)
 {
     return &EmscriptenListener::getInstance();
+}
+
+void EmscriptenListener::addLog(QString level, QString file, QString function, int line, QString msg) {
+    emscripten::val::global("addLog")(level.toStdString(), file.toStdString(), function.toStdString(), line, msg.toStdString());
 }
 
 void EmscriptenListener::saveScreenshot(QImage img)
