@@ -10,7 +10,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
 
-    outputChannel = vscode.window.createOutputChannel('QML Sandbox');
+    outputChannel = vscode.window.createOutputChannel('Qml Sandbox');
 
     const qmlSandboxDisposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
         if (mainPanel) {
@@ -79,7 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
 function createQmlPanel(roots: vscode.Uri[]) {
     return vscode.window.createWebviewPanel(
         'qmlSandbox',
-        'QML Sandbox',
+        'Qml Sandbox',
         vscode.ViewColumn.Two,
         {
             enableScripts: true,

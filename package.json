@@ -1,6 +1,6 @@
 {
   "name": "QmlSandboxExtension",
-  "displayName": "QmlSandbox",
+  "displayName": "Qml Sandbox",
   "description": "Qml sandbox for vscode",
   "icon": "resources/logo.png",
   "version": "2.0.0",
@@ -17,12 +17,12 @@
     "commands": [
       {
         "command": "QmlSandboxExtension.openQmlSandbox",
-        "title": "Open QML Sandbox",
+        "title": "Open Qml Sandbox",
         "icon": "$(eye)"
       },
       {
         "command": "QmlSandboxExtension.screenshotQml",
-        "title": "Screenshot QML Scene",
+        "title": "Screenshot Qml Scene",
         "icon": "$(device-camera)"
       }
     ],

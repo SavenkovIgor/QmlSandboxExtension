@@ -64,14 +64,14 @@ Window {
                 spacing: 12
 
                 Text {
-                    text: "Select tab with QML file\nto load it here"
+                    text: "Select a tab with Qml file\nto load it here"
                     horizontalAlignment: Text.AlignHCenter
                     font.pixelSize: 28
                     color: "#f5f5f5"
                 }
 
                 Text {
-                    text: "All qml console output is redirected\nto vscode output tab,\n('QML Sandbox' category)"
+                    text: "All qml console output is redirected\nto vscode output tab,\n('Qml Sandbox' category)"
                     horizontalAlignment: Text.AlignLeft
                     font.pixelSize: 16
                     color: "#f5f5f5"
