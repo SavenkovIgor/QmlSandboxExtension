@@ -8,6 +8,9 @@
   "engines": {
     "vscode": "^1.79.0"
   },
+  "extensionDependencies": [
+    "bbenoist.QML"
+  ],
   "categories": [
     "Other"
   ],
