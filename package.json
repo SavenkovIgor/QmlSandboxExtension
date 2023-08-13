@@ -1,6 +1,6 @@
 {
   "name": "QmlSandboxExtension",
-  "displayName": "Qml Sandbox",
+  "displayName": "QmlSandbox",
   "description": "Qml sandbox for vscode",
   "icon": "resources/logo.png",
   "version": "2.0.0",
