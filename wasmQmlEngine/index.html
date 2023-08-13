@@ -81,6 +81,12 @@
               vscode.postMessage({type: 'screenshot', data: screenshotData});
             };
           }
+
+          if (!window.addLog) {
+            window.addLog = (level, file, functionName, line, msg) => {
+              vscode.postMessage({type: 'addLog', data: {level, file, functionName, line, msg}});
+            };
+          }
         });
     </script>
     <script type="text/javascript" src="qtloader.js"></script>
