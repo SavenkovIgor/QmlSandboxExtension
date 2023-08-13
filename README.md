@@ -13,9 +13,11 @@ the need for context switching and enhancing your productivity.
 
 - **Preview Qml:** This extension allows you to preview standalone Qml files in
 a sandbox environment. To open the preview window, simply click on
-the `eye` icon located at the top right corner of your Qml file
-(make sure that VsCode properly identifies your file as Qml, or the icon won't appear),
+the `eye` icon located at the top right corner of your Qml file or
 use the `Open Qml Sandbox` command, or press `Ctrl+Shift+Q`.
+
+> Make sure that VsCode properly identifies your file as Qml, or the icon won't appear.
+> Qml language support is provided by the `bbenoist.QML` extension dependency.
 
 - **Screenshot**: You can take screenshot of your Qml scene by clicking on the
 `camera` icon in the top right corner of the preview window or by using
