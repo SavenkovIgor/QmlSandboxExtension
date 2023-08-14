@@ -1,5 +1,8 @@
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
+import QtQuick.Templates as T
 
 import QtTemplateModule
 
