@@ -1,0 +1,24 @@
+# Changelog
+
+## v3.0.0
+
+### Added
+
+- Add Layout and Template module imports. They are missed in context (#46)
+- Add garbage collection after destruction. It could fix memory leaks (#45)
+- Add dependency from QML language vscode extension (#42)
+- Add circles example
+
+### Changed
+
+- Now Qt/QML log is captured and redirected to the integrated vscode console (#36)
+- Fix project.py script
+- Update README.md
+- Cleanup in extension folder structure
+
+### Fixed
+
+- Abbreviations and some readme fixes (#39)
+- Fix Qml id's, so they don't conflict with user's id's (#30)
+- Fix Visual Studio Code C++ prebuild (#29)
+- 21 Fix GitHub actions and automatic delivery to the Visual Studio Code marketplace (#24)
