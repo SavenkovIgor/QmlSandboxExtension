@@ -27,7 +27,7 @@ the `Screenshot Qml Scene` command.
 
 - Cmake/Ninja
 - aqtinstall (optional script for Qt installation)
-- Qt 6.5.1
+- Qt 6.5.2
 - Emscripten 3.1.25
 
 ## Contributing
