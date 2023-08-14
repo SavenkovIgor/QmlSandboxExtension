@@ -25,8 +25,10 @@ Window {
         anchors.fill: parent
 
         onCodeChanged: {
-            if (codeItem)
-                codeItem.destroy()
+            if (codeItem) {
+                codeItem.destroy();
+                gc();
+            }
 
             try {
                 codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
