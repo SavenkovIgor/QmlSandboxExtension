@@ -10,7 +10,7 @@ on:
 
 env:
   QT_ROOT: ${{ github.workspace }}/lib/Qt
-  QT_VERSION: 6.5.1
+  QT_VERSION: 6.5.2
   WASM_VERSION: 3.1.25
   AQT_VERSION: ==3.1.6
 
