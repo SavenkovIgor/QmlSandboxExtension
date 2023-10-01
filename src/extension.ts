@@ -4,9 +4,7 @@ import * as os from 'os';
 
 
 let disposables: vscode.Disposable[] = [];
-
 let mainPanel: vscode.WebviewPanel | null = null;
-
 let outputChannel: vscode.OutputChannel | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
@@ -110,7 +108,7 @@ function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string
     return html;
 }
 
-function screenshotSaveDir(): vscode.Uri {
+function defaultScreenshotDir(): vscode.Uri {
     const workspaceFolderUri = vscode.workspace.workspaceFolders?.[0]?.uri;
     if (workspaceFolderUri) return workspaceFolderUri;
 
@@ -122,10 +120,8 @@ function screenshotSaveDir(): vscode.Uri {
 }
 
 function saveScreenshot(pngData: string) {
-    const savePathUri = screenshotSaveDir();
-
     let options = {
-        defaultUri: vscode.Uri.joinPath(savePathUri, 'screenshot.png'),
+        defaultUri: vscode.Uri.joinPath(defaultScreenshotDir(), 'screenshot.png'),
         title: 'Save screenshot',
     }
     vscode.window.showSaveDialog(options).then(fileUri => {
