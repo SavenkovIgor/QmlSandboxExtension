@@ -1,4 +1,7 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as os from 'os';
+
 
 let disposables: vscode.Disposable[] = [];
 
@@ -34,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
                     break;
 
                 case 'addLog':
-                    addLog(message.data);
+                    addQmlLog(message.data);
                     break;
 
                 default:
@@ -107,30 +110,19 @@ function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string
     return html;
 }
 
-function screenshotRootPath(): vscode.Uri | undefined {
-    let savePathUri = vscode.workspace.workspaceFolders?.[0].uri;
-    if (!savePathUri) {
-        const path = require('path');
-        const activePath = vscode.window.activeTextEditor?.document.uri;
-        // Take parent folder of active file
-        savePathUri = activePath ? vscode.Uri.file(path.dirname(activePath.fsPath)) : undefined;
-    }
+function screenshotSaveDir(): vscode.Uri {
+    const workspaceFolderUri = vscode.workspace.workspaceFolders?.[0]?.uri;
+    if (workspaceFolderUri) return workspaceFolderUri;
 
-    if (!savePathUri) {
-        const os = require('os');
-        savePathUri = vscode.Uri.file(os.homedir());
-    }
+    const document = vscode.window.activeTextEditor?.document;
+    if (document && !document.isUntitled)
+        return vscode.Uri.file(path.dirname(document.uri.fsPath));
 
-    return savePathUri;
+    return vscode.Uri.file(os.homedir());
 }
 
 function saveScreenshot(pngData: string) {
-    const savePathUri = screenshotRootPath();
-
-    if (!savePathUri) {
-        vscode.window.showErrorMessage('Cannot save screenshot');
-        return;
-    }
+    const savePathUri = screenshotSaveDir();
 
     let options = {
         defaultUri: vscode.Uri.joinPath(savePathUri, 'screenshot.png'),
@@ -144,12 +136,15 @@ function saveScreenshot(pngData: string) {
     });
 }
 
-function addLog(logData: any) {
+function addQmlLog(logData: any) {
     const {level, file, functionName, line, msg} = logData;
     const timestamp = (new Date()).toISOString().substring(11, 23);
     const logLine = `[${timestamp}:${level}:${file}(${line}) ${functionName}] ${msg}`;
+    addLog(logLine);
+}
 
-    outputChannel?.appendLine(logLine);
+function addLog(line: string) {
+    outputChannel?.appendLine(line);
     outputChannel?.show(true);
 }
 
