@@ -131,7 +131,7 @@ function saveScreenshot(pngData: string) {
     vscode.window.showSaveDialog(options).then(fileUri => {
         if (!fileUri) return;
         vscode.workspace.fs.writeFile(fileUri, Buffer.from(pngData, 'base64')).then(() => {
-            vscode.window.showInformationMessage('Screenshot saved');
+            vscode.window.showInformationMessage(`Screenshot saved to ${fileUri.fsPath}`);
         });
     });
 }
