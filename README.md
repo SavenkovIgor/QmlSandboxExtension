@@ -9,6 +9,17 @@ the need for context switching and enhancing your productivity.
 
 [![Build status](https://github.com/SavenkovIgor/QmlSandboxExtension/actions/workflows/Build.yml/badge.svg)](https://github.com/SavenkovIgor/QmlSandboxExtension/actions/workflows/Build.yml)
 
+## Quick start
+
+![Quick start](resources/quick_start.gif)
+
+To get started:
+
+1. Open or create a file with qml content
+1. Check at the bottom right corner that `qml` language is detected properly
+1. Click on the `eye` icon appeared at the top right corner of your Qml file or
+ press `Ctrl+Shift+Q` to open the preview window
+
 ## Features
 
 - **Preview Qml:** This extension allows you to preview standalone Qml files in
