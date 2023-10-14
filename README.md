@@ -36,8 +36,10 @@ extension dependency.
 the `Screenshot QML Scene` command.
 
 - **Live-Update**: The QML preview auto-updates with each file change. To
-disable this updates, click the `QML Live-update` item in status bar
-when the QML WebView is open.
+disable this updates, click the `QML Live-update` item in the status bar
+when the QML WebView is open. After disabling live-update, an icon for manual
+QML sandbox tab update will appear at the top of code editor.
+
 ![QML Live-update](resources/status_bar.png)
 
 ## Build dependencies
