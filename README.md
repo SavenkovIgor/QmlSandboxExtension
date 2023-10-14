@@ -1,6 +1,6 @@
-# Qml Sandbox extension for Visual Studio Code
-
 ![Logo](resources/logo.png)
+
+# Qml Sandbox extension for Visual Studio Code
 
 Welcome to QmlSandboxExtension, a specialized tool designed to streamline
 the development process for Qml experiments. This extension allows you
