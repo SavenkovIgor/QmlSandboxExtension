@@ -1,19 +1,22 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
+import { QmlStatusBar } from './qmlStatusBar';
 
-
+const cmdPrefix = 'QmlSandboxExtension';
 let disposables: vscode.Disposable[] = [];
 let mainPanel: vscode.WebviewPanel | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
+let qmlStatusBar: QmlStatusBar | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
 
+    qmlStatusBar = new QmlStatusBar(cmdPrefix, context);
     outputChannel = vscode.window.createOutputChannel('Qml Sandbox');
 
-    const qmlSandboxDisposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
+    const qmlSandboxDisposable = vscode.commands.registerCommand(`${cmdPrefix}.openQmlSandbox`, () => {
         if (mainPanel) {
             mainPanel.reveal();
             return;
@@ -22,9 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
         mainPanel = createQmlPanel([qmlEngineDir]);
 
         vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+        qmlStatusBar?.reset();
+        qmlStatusBar?.show();
 
         mainPanel.onDidDispose(() => {
             mainPanel = null;
+            qmlStatusBar?.hide();
             vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
         }, null, context.subscriptions);
 
@@ -78,6 +84,9 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         if (!isQmlDocument(event.document)) {
+            return;
+        }
+        if (!qmlStatusBar?.isLiveUpdate()) {
             return;
         }
 
