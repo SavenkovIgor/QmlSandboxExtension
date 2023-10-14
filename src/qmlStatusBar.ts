@@ -33,7 +33,8 @@ export class QmlStatusBar {
     }
 
     private showInfoMessage() {
-        vscode.window.showInformationMessage(`Live-update ${this.isLiveUpdate() ? 'enabled' : 'disabled'}`);
+        const msg = `QML WebView live updating is ${this.isLiveUpdate() ? 'enabled' : 'disabled'}`;
+        vscode.window.showInformationMessage(msg);
     }
 
     public show() {
