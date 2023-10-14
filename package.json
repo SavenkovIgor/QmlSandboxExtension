@@ -27,10 +27,20 @@
         "command": "QmlSandboxExtension.screenshotQml",
         "title": "Screenshot Qml Scene",
         "icon": "$(device-camera)"
+      },
+      {
+        "command": "QmlSandboxExtension.updateWebView",
+        "title": "Update Qml WebView",
+        "icon": "$(sync)"
       }
     ],
     "menus": {
       "editor/title": [
+        {
+          "command": "QmlSandboxExtension.updateWebView",
+          "group": "navigation",
+          "when": "isQmlSandboxOpen && isQmlLiveUpdateEnabled == false"
+        },
         {
           "command": "QmlSandboxExtension.openQmlSandbox",
           "group": "navigation",

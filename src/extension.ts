@@ -1,19 +1,22 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
+import { QmlStatusBar } from './qmlStatusBar';
 
-
+const extPrefix = 'QmlSandboxExtension';
 let disposables: vscode.Disposable[] = [];
 let mainPanel: vscode.WebviewPanel | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
+let qmlStatusBar: QmlStatusBar | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
 
+    qmlStatusBar = new QmlStatusBar(extPrefix, context);
     outputChannel = vscode.window.createOutputChannel('Qml Sandbox');
 
-    const qmlSandboxDisposable = vscode.commands.registerCommand('QmlSandboxExtension.openQmlSandbox', () => {
+    const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
         if (mainPanel) {
             mainPanel.reveal();
             return;
@@ -22,9 +25,12 @@ export function activate(context: vscode.ExtensionContext) {
         mainPanel = createQmlPanel([qmlEngineDir]);
 
         vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+        qmlStatusBar?.reset();
+        qmlStatusBar?.show();
 
         mainPanel.onDidDispose(() => {
             mainPanel = null;
+            qmlStatusBar?.hide();
             vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
         }, null, context.subscriptions);
 
@@ -55,36 +61,35 @@ export function activate(context: vscode.ExtensionContext) {
         });
     });
 
-    const screenshotQmlDisposable = vscode.commands.registerCommand('QmlSandboxExtension.screenshotQml', () => {
+    const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
         mainPanel?.webview.postMessage({type: 'screenshot'});
     });
 
-    const editorChange = vscode.window.onDidChangeActiveTextEditor(editor => {
-        if (!editor || !mainPanel || !isQmlDocument(editor.document)) {
-            return;
+    const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (activeEditor) {
+            updateWebviewContent(activeEditor.document, true);
         }
+    });
 
-        updateWebviewContent(editor.document);
+    const editorChange = vscode.window.onDidChangeActiveTextEditor(editor => {
+        if (editor) {
+            updateWebviewContent(editor.document, true);
+        }
     });
 
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
         const activeEditor = vscode.window.activeTextEditor;
-
-        if (!mainPanel) {
-            return;
+        if (activeEditor && activeEditor.document === event.document) {
+            updateWebviewContent(event.document, false);
         }
-
-        if (!activeEditor || activeEditor.document !== event.document) {
-            return;
-        }
-        if (!isQmlDocument(event.document)) {
-            return;
-        }
-
-        updateWebviewContent(event.document);
     });
 
-    context.subscriptions.push(qmlSandboxDisposable, screenshotQmlDisposable, editorChange, textChange);
+    context.subscriptions.push(qmlSandboxDisposable);
+    context.subscriptions.push(screenshotQmlDisposable);
+    context.subscriptions.push(updateWebViewCmd);
+    context.subscriptions.push(editorChange);
+    context.subscriptions.push(textChange);
 }
 
 function createQmlPanel(roots: vscode.Uri[]) {
@@ -103,8 +108,13 @@ function isQmlDocument(document: vscode.TextDocument) {
     return document.languageId === 'qml';
 }
 
-function updateWebviewContent(document: vscode.TextDocument) {
-    mainPanel?.webview.postMessage({type: 'update', text: document.getText()});
+function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
+    if (!mainPanel || !isQmlDocument(document)) {
+        return;
+    }
+    if (qmlStatusBar?.isLiveUpdate() || force) {
+        mainPanel?.webview.postMessage({type: 'update', text: document.getText()});
+    }
 }
 
 function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string {
