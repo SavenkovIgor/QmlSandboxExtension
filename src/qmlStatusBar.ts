@@ -11,9 +11,11 @@ export class QmlStatusBar {
         this.statusBarItem.tooltip = 'Update qml webview on each code edit. Click to toggle.';
         this.statusBarItem.command = `${cmdPrefix}.toggleLiveUpdate`;
 
+        this.updateContext();
+
         const showMenuCmd = vscode.commands.registerCommand(`${cmdPrefix}.toggleLiveUpdate`,
             () => {
-                this.liveUpdate = !this.liveUpdate;
+                this.toggleLiveUpdate();
                 this.redraw();
                 this.showInfoMessage();
             }
@@ -23,15 +25,15 @@ export class QmlStatusBar {
     }
 
     private liveUpdateText() {
-        return `${this.liveUpdate ? '$(check)' : '$(x)'} QML Live-update`;
+        return `${this.isLiveUpdate() ? '$(check)' : '$(x)'} QML Live-update`;
     }
 
     private backgroundColor() {
-        return this.liveUpdate ? '' : new vscode.ThemeColor('statusBarItem.warningBackground');
+        return this.isLiveUpdate() ? '' : new vscode.ThemeColor('statusBarItem.warningBackground');
     }
 
     private showInfoMessage() {
-        vscode.window.showInformationMessage(`Live-update ${this.liveUpdate ? 'enabled' : 'disabled'}`);
+        vscode.window.showInformationMessage(`Live-update ${this.isLiveUpdate() ? 'enabled' : 'disabled'}`);
     }
 
     public show() {
@@ -54,5 +56,15 @@ export class QmlStatusBar {
 
     public reset() {
         this.liveUpdate = true;
+        this.updateContext();
+    }
+
+    private toggleLiveUpdate() {
+        this.liveUpdate = !this.liveUpdate;
+        this.updateContext();
+    }
+
+    private updateContext() {
+        vscode.commands.executeCommand('setContext', 'isQmlLiveUpdateEnabled', this.isLiveUpdate());
     }
 }
