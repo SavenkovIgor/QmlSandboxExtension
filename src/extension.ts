@@ -47,7 +47,10 @@ export function activate(context: vscode.ExtensionContext) {
         const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
 
         vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
-            if (!mainPanel) return;
+            if (!mainPanel) {
+                return;
+            }
+
             mainPanel.webview.html = prepareIndexHtmlContent(fileData.toString(), qmlEngineDir);
         });
     });
@@ -57,8 +60,9 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const editorChange = vscode.window.onDidChangeActiveTextEditor(editor => {
-        if (!editor || !mainPanel) return;
-        if (editor.document.languageId !== 'qml') return;
+        if (!editor || !mainPanel || !isQmlDocument(editor.document)) {
+            return;
+        }
 
         updateWebviewContent(editor.document);
     });
@@ -66,10 +70,16 @@ export function activate(context: vscode.ExtensionContext) {
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
         const activeEditor = vscode.window.activeTextEditor;
 
-        if (!mainPanel) return;
+        if (!mainPanel) {
+            return;
+        }
 
-        if (!activeEditor || activeEditor.document !== event.document) return;
-        if (event.document.languageId !== 'qml') return;
+        if (!activeEditor || activeEditor.document !== event.document) {
+            return;
+        }
+        if (!isQmlDocument(event.document)) {
+            return;
+        }
 
         updateWebviewContent(event.document);
     });
@@ -89,12 +99,18 @@ function createQmlPanel(roots: vscode.Uri[]) {
     );
 }
 
+function isQmlDocument(document: vscode.TextDocument) {
+    return document.languageId === 'qml';
+}
+
 function updateWebviewContent(document: vscode.TextDocument) {
     mainPanel?.webview.postMessage({type: 'update', text: document.getText()});
 }
 
 function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string {
-    if (!mainPanel) return "";
+    if (!mainPanel) {
+        return "";
+    }
 
     const qtLoaderJs = vscode.Uri.joinPath(qmlEngineDir, 'qtloader.js');
     const qtLogoSvg  = vscode.Uri.joinPath(qmlEngineDir, 'qtlogo.svg');
@@ -110,11 +126,14 @@ function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string
 
 function defaultScreenshotDir(): vscode.Uri {
     const workspaceFolderUri = vscode.workspace.workspaceFolders?.[0]?.uri;
-    if (workspaceFolderUri) return workspaceFolderUri;
+    if (workspaceFolderUri) {
+        return workspaceFolderUri;
+    }
 
     const document = vscode.window.activeTextEditor?.document;
-    if (document && !document.isUntitled)
+    if (document && !document.isUntitled) {
         return vscode.Uri.file(path.dirname(document.uri.fsPath));
+    }
 
     return vscode.Uri.file(os.homedir());
 }
@@ -123,9 +142,11 @@ function saveScreenshot(pngData: string) {
     let options = {
         defaultUri: vscode.Uri.joinPath(defaultScreenshotDir(), 'screenshot.png'),
         title: 'Save screenshot',
-    }
+    };
     vscode.window.showSaveDialog(options).then(fileUri => {
-        if (!fileUri) return;
+        if (!fileUri) {
+            return;
+        }
         vscode.workspace.fs.writeFile(fileUri, Buffer.from(pngData, 'base64')).then(() => {
             vscode.window.showInformationMessage(`Screenshot saved to ${fileUri.fsPath}`);
         });
