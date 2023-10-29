@@ -10,7 +10,9 @@ if (NOT DEFINED ENV{EMSDK})
     message (FATAL_ERROR "EMSDK environment variable is not defined. Please install emscripten SDK and set EMSDK environment variable.")
 endif ()
 
-find_package (Qt6 REQUIRED COMPONENTS Quick)
+set (CMAKE_CXX_STANDARD 20)
+
+find_package (Qt6 REQUIRED COMPONENTS Quick Quick3D)
 
 qt_standard_project_setup(REQUIRES 6.6)
 
@@ -30,4 +32,4 @@ qt_add_qml_module (QtWasmTemplate
     VERSION 1.0
     QML_FILES Main.qml)
 
-target_link_libraries (QtWasmTemplate PRIVATE Qt6::Quick)
+target_link_libraries (QtWasmTemplate PRIVATE Qt::Quick Qt::Quick3D)
