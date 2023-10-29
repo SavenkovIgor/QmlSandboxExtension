@@ -28,67 +28,72 @@
     <div id="screen"></div>
 
     <script type='text/javascript'>
-        const vscode = window.acquireVsCodeApi();
-        let qtLoader = undefined;
-        function init() {
-          var spinner = document.querySelector('#qtspinner');
-          var canvas = document.querySelector('#screen');
-          var status = document.querySelector('#qtstatus')
+        async function init()
+        {
+            const spinner = document.querySelector('#qtspinner');
+            const screen = document.querySelector('#screen');
+            const status = document.querySelector('#qtstatus');
 
-          qtLoader = new QtLoader({
-              canvasElements : [canvas],
-              showLoader: function(loaderStatus) {
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-                  status.innerHTML = loaderStatus + "...";
-              },
-              showError: function(errorText) {
-                  status.innerHTML = errorText;
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-              },
-              showExit: function() {
-                  status.innerHTML = "Application exit";
-                  if (qtLoader.exitCode !== undefined)
-                      status.innerHTML += " with code " + qtLoader.exitCode;
-                  if (qtLoader.exitText !== undefined)
-                      status.innerHTML += " (" + qtLoader.exitText + ")";
-                  spinner.style.display = 'block';
-                  canvas.style.display = 'none';
-              },
-              showCanvas: function() {
-                  spinner.style.display = 'none';
-                  canvas.style.display = 'block';
-              },
-              path: '#{webRoot}',
-          });
-          qtLoader.loadEmscriptenModule("QtWasmTemplate");
+            const showUi = (ui) => {
+                [spinner, screen].forEach(element => element.style.display = 'none');
+                if (screen === ui)
+                    screen.style.position = 'default';
+                ui.style.display = 'block';
+            }
+
+            try {
+                showUi(spinner);
+                status.innerHTML = 'Loading...';
+
+                const instance = await qtLoad({
+                    qt: {
+                        onLoaded: () => showUi(screen),
+                        onExit: exitData =>
+                        {
+                            status.innerHTML = 'Application exit';
+                            status.innerHTML +=
+                                exitData.code !== undefined ? ` with code ` : '';
+                            status.innerHTML +=
+                                exitData.text !== undefined ? ` ()` : '';
+                            showUi(spinner);
+                        },
+                        entryFunction: window.createQtAppInstance,
+                        containerElements: [screen],
+
+                    }
+                });
+
+                const vscode = window.acquireVsCodeApi();
+                window.addEventListener('message', (event) => {
+                    if (!instance) return;
+
+                    const data = event.data;
+                    if (data.type === 'update') {
+                        instance.newCodeHandler(data.text);
+                    } else if (data.type === 'screenshot') {
+                        instance.screenshotHandler();
+                    }
+
+                    if (!window.receiveScreenshot) {
+                        window.receiveScreenshot = (screenshotData) => {
+                            vscode.postMessage({type: 'screenshot', data: screenshotData});
+                        };
+                    }
+
+                    if (!window.addLog) {
+                        window.addLog = (level, file, functionName, line, msg) => {
+                            vscode.postMessage({type: 'addLog', data: {level, file, functionName, line, msg}});
+                        };
+                    }
+                });
+
+            } catch (e) {
+                console.error(e);
+                console.error(e.stack);
+            }
         }
-
-        window.addEventListener('message', (event) => {
-          if (!qtLoader) return;
-          if (!qtLoader.module) return;
-
-          const data = event.data;
-          if (data.type === 'update') {
-            qtLoader.module().newCodeHandler(data.text);
-          } else if (data.type === 'screenshot') {
-            qtLoader.module().screenshotHandler();
-          }
-
-          if (!window.receiveScreenshot) {
-            window.receiveScreenshot = (screenshotData) => {
-              vscode.postMessage({type: 'screenshot', data: screenshotData});
-            };
-          }
-
-          if (!window.addLog) {
-            window.addLog = (level, file, functionName, line, msg) => {
-              vscode.postMessage({type: 'addLog', data: {level, file, functionName, line, msg}});
-            };
-          }
-        });
     </script>
+    <script type="text/javascript" src="#{webRoot}/QtWasmTemplate.js"></script>
     <script type="text/javascript" src="#{webRoot}/qtloader.js"></script>
   </body>
 </html>

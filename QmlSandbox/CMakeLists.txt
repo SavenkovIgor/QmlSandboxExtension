@@ -12,7 +12,7 @@ endif ()
 
 find_package (Qt6 REQUIRED COMPONENTS Quick)
 
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES 6.6)
 
 qt_add_executable (QtWasmTemplate
     main.cpp

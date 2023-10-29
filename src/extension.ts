@@ -51,13 +51,23 @@ export function activate(context: vscode.ExtensionContext) {
         }, null, context.subscriptions);
 
         const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
+        const qtWasmTemplateJsPath = vscode.Uri.joinPath(qmlEngineDir, 'QtWasmTemplate.js');
 
-        vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
+        // NOTE: Very dirty hack to make QtWasmTemplate.js work with vscode webview
+        // Rewrite QtWasmTemplate.wasm path in QtWasmTemplate.js so it can be loaded from vscode webview
+        // The only reason we need to do this is because this file is obfuscated and automatically generated
+        vscode.workspace.fs.readFile(qtWasmTemplateJsPath).then(fileData => {
             if (!mainPanel) {
                 return;
             }
 
-            mainPanel.webview.html = injectWebRoot(fileData.toString(), qmlEngineDir);
+            const wasmPath = mainPanel.webview.asWebviewUri(vscode.Uri.joinPath(qmlEngineDir, 'QtWasmTemplate.wasm'));
+            // To avoid double replacement, we need to replace the it with quoted string
+            const replacedData = fileData.toString().replace('"QtWasmTemplate.wasm"', `"${wasmPath}"`);
+
+            vscode.workspace.fs.writeFile(qtWasmTemplateJsPath, Buffer.from(replacedData)).then(() => {
+                loadWebView(indexHtmlPath, qmlEngineDir);
+            });
         });
     });
 
@@ -115,6 +125,16 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (qmlStatusBar?.isLiveUpdate() || force) {
         mainPanel?.webview.postMessage({type: 'update', text: document.getText()});
     }
+}
+
+function loadWebView(indexHtmlPath: vscode.Uri, qmlEngineDir: vscode.Uri) {
+    vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
+        if (!mainPanel) {
+            return;
+        }
+
+        mainPanel.webview.html = injectWebRoot(fileData.toString(), qmlEngineDir);
+    });
 }
 
 function injectWebRoot(html: string, webRootUri: vscode.Uri): string {

@@ -3,8 +3,8 @@
 import subprocess, os, shutil, argparse, json
 from pathlib import Path
 
-qt_version = '6.5.2'
-emsdk_version = '3.1.25'
+qt_version = '6.6.0'
+emsdk_version = '3.1.37'
 
 def run(command: str, env: dict = None):
     if subprocess.call(command, shell=True, executable='/bin/bash', env=env) != 0:
