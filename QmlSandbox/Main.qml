@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Templates as T
+import QtQuick3D
 
 import QtTemplateModule
 
