@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            mainPanel.webview.html = prepareIndexHtmlContent(fileData.toString(), qmlEngineDir);
+            mainPanel.webview.html = injectWebRoot(fileData.toString(), qmlEngineDir);
         });
     });
 
@@ -117,21 +117,12 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     }
 }
 
-function prepareIndexHtmlContent(html: string, qmlEngineDir: vscode.Uri): string {
-    if (!mainPanel) {
-        return "";
+function injectWebRoot(html: string, webRootUri: vscode.Uri): string {
+    if (mainPanel) {
+        const webRoot = mainPanel.webview.asWebviewUri(webRootUri).toString();
+        return html.replace(/#{webRoot}/g, webRoot);
     }
-
-    const qtLoaderJs = vscode.Uri.joinPath(qmlEngineDir, 'qtloader.js');
-    const qtLogoSvg  = vscode.Uri.joinPath(qmlEngineDir, 'qtlogo.svg');
-
-    // Replace paths for startup js script and logo svg
-    html = html.replace('qtloader.js', mainPanel.webview.asWebviewUri(qtLoaderJs).toString());
-    html = html.replace('qtlogo.svg', mainPanel.webview.asWebviewUri(qtLogoSvg).toString());
-
-    // Add proper path prefix for loading QtWasmTemplate.js and QtWasmTemplate.wasm
-    html = html.replace('vscode_extension_uri_qml_engine_path', mainPanel.webview.asWebviewUri(qmlEngineDir).toString());
-    return html;
+    return "";
 }
 
 function defaultScreenshotDir(): vscode.Uri {
