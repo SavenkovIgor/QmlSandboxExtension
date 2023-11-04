@@ -7,8 +7,11 @@ function installVscodeToWasmMessageHandlers(instance) {
 
         const handler = handlers[event.data.type];
 
-        console.assert(handler, `Unknown message type: ${event.data.type}`);
-        handler?.(event.data);
+        if (handler) {
+            handler(event.data);
+        } else {
+            console.error(`Unknown message type: ${event.data.type}`);
+        }
     });
 }
 
