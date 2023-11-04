@@ -4,6 +4,7 @@ import * as os from 'os';
 import { QmlStatusBar } from './qmlStatusBar';
 
 const extPrefix = 'QmlSandboxExtension';
+const defaultTitle = 'Qml Sandbox';
 let disposables: vscode.Disposable[] = [];
 let mainPanel: vscode.WebviewPanel | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
@@ -14,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
 
     qmlStatusBar = new QmlStatusBar(extPrefix, context);
-    outputChannel = vscode.window.createOutputChannel('Qml Sandbox');
+    outputChannel = vscode.window.createOutputChannel(defaultTitle);
 
     const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
         if (mainPanel) {
@@ -88,7 +89,7 @@ export function activate(context: vscode.ExtensionContext) {
 function createQmlPanel(roots: vscode.Uri[]) {
     return vscode.window.createWebviewPanel(
         'qmlSandbox',
-        'Qml Sandbox',
+        defaultTitle,
         vscode.ViewColumn.Two,
         {
             enableScripts: true,
@@ -106,7 +107,9 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
         return;
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
-        mainPanel?.webview.postMessage({type: 'update', text: document.getText()});
+        const filename = path.basename(document.fileName);
+        mainPanel.title = `${defaultTitle} - ${filename}`;
+        mainPanel.webview.postMessage({type: 'update', text: document.getText()});
     }
 }
 
