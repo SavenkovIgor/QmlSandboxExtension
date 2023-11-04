@@ -28,6 +28,7 @@
     </figure>
     <div id="screen"></div>
 
+    <script type="text/javascript" src="windowHandlers.js"></script>
     <script type='text/javascript'>
         async function init()
         {
@@ -64,29 +65,8 @@
                     }
                 });
 
-                const vscode = window.acquireVsCodeApi();
-                window.addEventListener('message', (event) => {
-                    if (!instance) return;
-
-                    const data = event.data;
-                    if (data.type === 'update') {
-                        instance.newCodeHandler(data.text);
-                    } else if (data.type === 'screenshot') {
-                        instance.screenshotHandler();
-                    }
-
-                    if (!window.receiveScreenshot) {
-                        window.receiveScreenshot = (screenshotData) => {
-                            vscode.postMessage({type: 'screenshot', data: screenshotData});
-                        };
-                    }
-
-                    if (!window.addLog) {
-                        window.addLog = (level, file, functionName, line, msg) => {
-                            vscode.postMessage({type: 'addLog', data: {level, file, functionName, line, msg}});
-                        };
-                    }
-                });
+                installVscodeToWasmMessageHandlers(instance);
+                installWasmToVscodeMessageHandlers();
 
             } catch (e) {
                 console.error(e);
