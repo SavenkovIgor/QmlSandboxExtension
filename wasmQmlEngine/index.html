@@ -8,6 +8,7 @@
         witch results in a scale of 1 and a 1:1 mapping between CSS pixels
         and Qt device independent pixels. -->
     <meta name="viewport" content="width=device-width, height=device-height, user-scalable=0"/>
+    <base href="#{webRoot}/">
 
     <title>QtWasmTemplate</title>
     <style>
@@ -19,7 +20,7 @@
   <body onload="init()">
     <figure style="overflow:visible;" id="qtspinner">
       <center style="margin-top:1.5em; line-height:150%">
-        <img src="#{webRoot}/qtlogo.svg" width="320" height="200" style="display:block"></img>
+        <img src="qtlogo.svg" width="320" height="200" style="display:block"></img>
         <strong>Qt for WebAssembly: QtWasmTemplate</strong>
         <div id="qtstatus"></div>
         <noscript>JavaScript is disabled. Please enable JavaScript to use this application.</noscript>
@@ -93,7 +94,7 @@
             }
         }
     </script>
-    <script type="text/javascript" src="#{webRoot}/QtWasmTemplate.js"></script>
-    <script type="text/javascript" src="#{webRoot}/qtloader.js"></script>
+    <script type="text/javascript" src="QtWasmTemplate.js"></script>
+    <script type="text/javascript" src="qtloader.js"></script>
   </body>
 </html>
