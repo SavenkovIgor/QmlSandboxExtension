@@ -51,24 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
         }, null, context.subscriptions);
 
         const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
-        const qtWasmTemplateJsPath = vscode.Uri.joinPath(qmlEngineDir, 'QtWasmTemplate.js');
-
-        // NOTE: Very dirty hack to make QtWasmTemplate.js work with vscode webview
-        // Rewrite QtWasmTemplate.wasm path in QtWasmTemplate.js so it can be loaded from vscode webview
-        // The only reason we need to do this is because this file is obfuscated and automatically generated
-        vscode.workspace.fs.readFile(qtWasmTemplateJsPath).then(fileData => {
-            if (!mainPanel) {
-                return;
-            }
-
-            const wasmPath = mainPanel.webview.asWebviewUri(vscode.Uri.joinPath(qmlEngineDir, 'QtWasmTemplate.wasm'));
-            // To avoid double replacement, we need to replace the it with quoted string
-            const replacedData = fileData.toString().replace('"QtWasmTemplate.wasm"', `"${wasmPath}"`);
-
-            vscode.workspace.fs.writeFile(qtWasmTemplateJsPath, Buffer.from(replacedData)).then(() => {
-                loadWebView(indexHtmlPath, qmlEngineDir);
-            });
-        });
+        loadWebView(indexHtmlPath, qmlEngineDir);
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
