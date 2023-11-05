@@ -49,18 +49,35 @@ EmscriptenListener *EmscriptenListener::create([[maybe_unused]] QQmlEngine *qmlE
     return &EmscriptenListener::getInstance();
 }
 
-void EmscriptenListener::addLog(QString level, QString file, QString function, int line, QString msg) {
-    emscripten::val::global("addLog")(level.toStdString(), file.toStdString(), function.toStdString(), line, msg.toStdString());
+void EmscriptenListener::sendJRpcToExtension(QJsonObject jRpc)
+{
+    auto doc = QJsonDocument(jRpc);
+    auto jRpcString = doc.toJson(QJsonDocument::Compact).toStdString();
+    emscripten::val::global("receiveJRpcFromQml")(jRpcString);
 }
 
-void EmscriptenListener::saveScreenshot(QImage img)
+void EmscriptenListener::addLog(QString level, QString file, QString function, int line, QString msg) {
+    auto params = QJsonObject{
+        {"level", level},
+        {"file", file},
+        {"functionName", function},
+        {"line", line},
+        {"msg", msg}
+    };
+    auto logObj = QJsonObject{
+        {"method", "addLog"},
+        {"params", params}
+    };
+    sendJRpcToExtension(logObj);
+}
+
+QString EmscriptenListener::imgToBase64(QImage img)
 {
     QByteArray data;
     QBuffer dataDevice(&data);
     img.save(&dataDevice, "PNG");
 
-    auto base64Data = data.toBase64().toStdString();
-    emscripten::val::global("receiveScreenshot")(base64Data);
+    return data.toBase64();
 }
 
 EmscriptenListener::EmscriptenListener(QObject *parent)

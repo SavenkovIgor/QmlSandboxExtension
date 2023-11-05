@@ -35,20 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
         }, null, context.subscriptions);
 
-        mainPanel.webview.onDidReceiveMessage(message => {
-            switch (message?.type) {
-                case 'screenshot':
-                    saveScreenshot(message.data);
-                    break;
-
-                case 'addLog':
-                    addQmlLog(message.data);
-                    break;
-
-                default:
-                    console.warn('Unknown message type', message?.type);
-                    break;
-            }
+        mainPanel.webview.onDidReceiveMessage(jRpc => {
+            receiveJRcpFromQml(jRpc);
         }, null, context.subscriptions);
 
         const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
@@ -56,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
-        sendJRpcToQml('screenshot', []);
+        sendJRpcToQml('makeScreenshot', []);
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
@@ -186,8 +174,20 @@ function sendJRpcToQml(method: string, params: any) {
     mainPanel?.webview.postMessage(cmd);
 }
 
-function receiveJRcpFromQml(message: any) {
-    addLog(`[Qml] ${message}`);
+function receiveJRcpFromQml(jRpc: any) {
+    switch (jRpc.method) {
+        case 'addLog':
+            addQmlLog(jRpc.params);
+            break;
+
+        case 'saveScreenshot':
+            saveScreenshot(jRpc.params[0]);
+            break;
+
+        default:
+            console.error(`Unknown message type: ${jRpc.method}`);
+            break;
+    }
 }
 
 // This method is called when your extension is deactivated
