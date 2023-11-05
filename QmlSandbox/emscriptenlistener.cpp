@@ -1,6 +1,7 @@
 #include "emscriptenlistener.h"
 
 #include <QBuffer>
+#include <QJsonDocument>
 
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
@@ -24,26 +25,20 @@ void logMessageCatcher(QtMsgType type, const QMessageLogContext &context, const 
     emscripten.addLog(logLevelName, context.file, context.function, context.line, msg);
 }
 
-void newCodeHandler(std::string code)
+void receiveJRpcFromExtension(std::string jRpc)
 {
-    QString qCode = QString::fromStdString(code);
-    auto &inst = EmscriptenListener::getInstance();
-    emit inst.newCode(qCode);
-}
-
-void screenshotHandler()
-{
-    auto &inst = EmscriptenListener::getInstance();
-    emit inst.screenshot();
+    auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(jRpc));
+    auto jRpcObj = doc.object();
+    auto& inst = EmscriptenListener::getInstance();
+    emit inst.receiveJRpcFromExtension(jRpcObj);
 }
 
 EMSCRIPTEN_BINDINGS(QmlSandboxModule)
 {
-    emscripten::function("newCodeHandler", &newCodeHandler);
-    emscripten::function("screenshotHandler", &screenshotHandler);
+    emscripten::function("receiveJRpcFromExtension", &receiveJRpcFromExtension);
 }
 
-EmscriptenListener &EmscriptenListener::getInstance()
+EmscriptenListener& EmscriptenListener::getInstance()
 {
     static EmscriptenListener instance;
     return instance;

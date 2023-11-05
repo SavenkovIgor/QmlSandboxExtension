@@ -15,8 +15,24 @@ Window {
     Connections {
         target: EmscriptenListener
 
-        function onNewCode(code) { qmlSandboxComponentWrapper.code = code; }
-        function onScreenshot() { qmlSandboxComponentWrapper.screenshot(); }
+        function onReceiveJRpcFromExtension(jRpc) {
+            qmlSandboxWindow.jRpcController.receiveJRpcFromExtension(jRpc);
+        }
+    }
+
+    readonly property QtObject jRpcController: QtObject {
+        function receiveJRpcFromExtension(jRpc) {
+            switch (jRpc.method) {
+                case 'screenshot':
+                    qmlSandboxComponentWrapper.screenshot();
+                    break;
+                case 'update':
+                    qmlSandboxComponentWrapper.code = jRpc.params.source;
+                    break;
+                default:
+                    console.error(`Unknown message type: ${jRpc.method}`);
+            }
+        }
     }
 
     Item {

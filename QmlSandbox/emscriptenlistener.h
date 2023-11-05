@@ -3,6 +3,7 @@
 #include <QImage>
 #include <QObject>
 #include <QQmlEngine>
+#include <QJsonObject>
 
 class EmscriptenListener : public QObject
 {
@@ -21,6 +22,5 @@ private:
     explicit EmscriptenListener(QObject *parent = nullptr);
 
 signals:
-    void newCode(QString code);
-    void screenshot();
+    void receiveJRpcFromExtension(QJsonObject jRpc);
 };
