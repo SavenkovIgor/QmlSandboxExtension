@@ -35,20 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
         }, null, context.subscriptions);
 
-        mainPanel.webview.onDidReceiveMessage(message => {
-            switch (message?.type) {
-                case 'screenshot':
-                    saveScreenshot(message.data);
-                    break;
-
-                case 'addLog':
-                    addQmlLog(message.data);
-                    break;
-
-                default:
-                    console.warn('Unknown message type', message?.type);
-                    break;
-            }
+        mainPanel.webview.onDidReceiveMessage(jRpc => {
+            receiveJRcpFromQml(jRpc);
         }, null, context.subscriptions);
 
         const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
@@ -56,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
-        mainPanel?.webview.postMessage({type: 'screenshot'});
+        sendJRpcToQml('makeScreenshot', []);
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
@@ -109,7 +97,10 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (qmlStatusBar?.isLiveUpdate() || force) {
         const filename = path.basename(document.fileName);
         mainPanel.title = `${defaultTitle} - ${filename}`;
-        mainPanel.webview.postMessage({type: 'update', text: document.getText()});
+        sendJRpcToQml('update', {
+            file: filename,
+            source: document.getText(),
+        });
     }
 }
 
@@ -170,6 +161,33 @@ function addQmlLog(logData: any) {
 function addLog(line: string) {
     outputChannel?.appendLine(line);
     outputChannel?.show(true);
+}
+
+// This is not exactly a 100% compatible with JRpc, because
+// it is executed in controlled environment, and we can be sure about
+// possible types of arguments, errors, etc.
+// It is compatible with JRpc in a sense that it uses the same
+// field names and structure of the message.
+// I hope compatibility will be improved in the future
+function sendJRpcToQml(method: string, params: any) {
+    const cmd = { method: method, params: params };
+    mainPanel?.webview.postMessage(cmd);
+}
+
+function receiveJRcpFromQml(jRpc: any) {
+    switch (jRpc.method) {
+        case 'addLog':
+            addQmlLog(jRpc.params);
+            break;
+
+        case 'saveScreenshot':
+            saveScreenshot(jRpc.params[0]);
+            break;
+
+        default:
+            console.error(`Unknown message type: ${jRpc.method}`);
+            break;
+    }
 }
 
 // This method is called when your extension is deactivated

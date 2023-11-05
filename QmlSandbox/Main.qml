@@ -15,8 +15,32 @@ Window {
     Connections {
         target: EmscriptenListener
 
-        function onNewCode(code) { qmlSandboxComponentWrapper.code = code; }
-        function onScreenshot() { qmlSandboxComponentWrapper.screenshot(); }
+        function onReceiveJRpcFromExtension(jRpc) {
+            qmlSandboxWindow.jRpcController.receiveJRpcFromExtension(jRpc);
+        }
+    }
+
+    readonly property QtObject jRpcController: QtObject {
+        function receiveJRpcFromExtension(jRpc) {
+            switch (jRpc.method) {
+                case 'makeScreenshot':
+                    qmlSandboxComponentWrapper.screenshot();
+                    break;
+                case 'update':
+                    qmlSandboxComponentWrapper.code = jRpc.params.source;
+                    break;
+                default:
+                    console.error(`Unknown message type: ${jRpc.method}`);
+            }
+        }
+
+        function sendJRpcToExtension(method, params) {
+            const cmd = {
+                method: method,
+                params: params
+            };
+            EmscriptenListener.sendJRpcToExtension(cmd);
+        }
     }
 
     Item {
@@ -51,7 +75,8 @@ Window {
             }
 
             codeItem.grabToImage((result) => {
-                EmscriptenListener.saveScreenshot(result.image);
+                const base64Img = EmscriptenListener.imgToBase64(result.image);
+                qmlSandboxWindow.jRpcController.sendJRpcToExtension('saveScreenshot', [ base64Img ]);
             });
         }
     }
