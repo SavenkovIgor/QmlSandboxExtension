@@ -56,7 +56,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
-        mainPanel?.webview.postMessage({type: 'screenshot'});
+        sendQmlCommand({type: 'screenshot'});
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
@@ -109,7 +109,7 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (qmlStatusBar?.isLiveUpdate() || force) {
         const filename = path.basename(document.fileName);
         mainPanel.title = `${defaultTitle} - ${filename}`;
-        mainPanel.webview.postMessage({type: 'update', text: document.getText()});
+        sendQmlCommand({type: 'update', text: document.getText()});
     }
 }
 
@@ -170,6 +170,10 @@ function addQmlLog(logData: any) {
 function addLog(line: string) {
     outputChannel?.appendLine(line);
     outputChannel?.show(true);
+}
+
+function sendQmlCommand(command: any) {
+    mainPanel?.webview.postMessage(command);
 }
 
 // This method is called when your extension is deactivated
