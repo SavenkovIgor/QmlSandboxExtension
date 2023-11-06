@@ -13,14 +13,22 @@ Window {
     visible: true
 
     Connections {
-        target: EmscriptenListener
+        target: LogCatcher
 
-        function onReceiveJRpcFromExtension(jRpc) {
-            qmlSandboxWindow.jRpcController.receiveJRpcFromExtension(jRpc);
+        function onNewLogMessage(message) {
+            qmlSandboxWindow.jRpcController.sendJRpcToExtension('addLog', message);
         }
     }
 
     readonly property QtObject jRpcController: QtObject {
+        readonly property Connections __privateConnection: Connections {
+            target: EmscriptenListener
+
+            function onReceiveJRpcFromExtension(jRpc) {
+                qmlSandboxWindow.jRpcController.receiveJRpcFromExtension(jRpc);
+            }
+        }
+
         function receiveJRpcFromExtension(jRpc) {
             switch (jRpc.method) {
                 case 'makeScreenshot':
@@ -36,10 +44,7 @@ Window {
         }
 
         function sendJRpcToExtension(method, params) {
-            const cmd = {
-                method: method,
-                params: params
-            };
+            const cmd = { method: method, params: params };
             EmscriptenListener.sendJRpcToExtension(cmd);
         }
     }
@@ -119,7 +124,14 @@ Window {
                 }
 
                 Text {
-                    text: "All qml console output is redirected\nto vscode output tab,\n('Qml Sandbox' category)"
+                    text: "Regular console output is redirected\nto vscode output tab, 'Qml Sandbox' category."
+                    horizontalAlignment: Text.AlignLeft
+                    font.pixelSize: 16
+                    color: "#f5f5f5"
+                }
+
+                Text {
+                    text: "Qml errors are redirected\nto vscode 'problems' tab"
                     horizontalAlignment: Text.AlignLeft
                     font.pixelSize: 16
                     color: "#f5f5f5"

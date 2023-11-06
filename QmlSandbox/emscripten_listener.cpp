@@ -1,29 +1,9 @@
 #include "emscripten_listener.h"
 
-#include <QBuffer>
 #include <QJsonDocument>
 
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
-
-const char* qtLogLevelToString(QtMsgType type)
-{
-    switch (type) {
-    case QtDebugMsg:    return "DEBUG   ";
-    case QtInfoMsg:     return "INFO    ";
-    case QtWarningMsg:  return "WARNING ";
-    case QtCriticalMsg: return "CRITICAL";
-    case QtFatalMsg:    return "FATAL   ";
-    }
-    return "UNKNOWN";
-}
-
-void logMessageCatcher(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-{
-    QString logLevelName = qtLogLevelToString(type);
-    auto& emscripten = EmscriptenListener::getInstance();
-    emscripten.addLog(logLevelName, context.file, context.function, context.line, msg);
-}
 
 void receiveJRpcFromExtension(std::string jRpc)
 {
@@ -56,23 +36,7 @@ void EmscriptenListener::sendJRpcToExtension(QJsonObject jRpc)
     emscripten::val::global("receiveJRpcFromQml")(jRpcString);
 }
 
-void EmscriptenListener::addLog(QString level, QString file, QString function, int line, QString msg) {
-    auto params = QJsonObject{
-        {"level", level},
-        {"file", file},
-        {"functionName", function},
-        {"line", line},
-        {"msg", msg}
-    };
-    auto logObj = QJsonObject{
-        {"method", "addLog"},
-        {"params", params}
-    };
-    sendJRpcToExtension(logObj);
-}
-
 EmscriptenListener::EmscriptenListener(QObject *parent)
     : QObject{parent}
 {
-    qInstallMessageHandler(logMessageCatcher);
 }

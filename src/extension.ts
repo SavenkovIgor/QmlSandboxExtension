@@ -174,9 +174,12 @@ function setDiagnostics(diagnosticData: any) {
 }
 
 function addQmlLog(logData: any) {
-    const {level, file, functionName, line, msg} = logData;
+    let {type, line, file, functionName, category,  message} = logData;
     const timestamp = (new Date()).toISOString().substring(11, 23);
-    const logLine = `[${timestamp}:${level}:${file}(${line}) ${functionName}] ${msg}`;
+    file = file ? file : '';
+    category = category ? category : '';
+    functionName = functionName ? functionName : '';
+    const logLine = `[${timestamp}:${category}:${type}:${file}(${line}) ${functionName}] ${message}`;
     addLog(logLine);
 }
 

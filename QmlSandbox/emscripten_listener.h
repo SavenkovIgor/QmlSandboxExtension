@@ -16,7 +16,6 @@ public:
     static EmscriptenListener *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
 
     Q_INVOKABLE void sendJRpcToExtension(QJsonObject jRpc);
-    Q_INVOKABLE void addLog(QString level, QString file, QString function, int line, QString msg);
 
 private:
     explicit EmscriptenListener(QObject *parent = nullptr);

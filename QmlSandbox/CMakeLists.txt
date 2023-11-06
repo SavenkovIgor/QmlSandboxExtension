@@ -20,6 +20,8 @@ qt_add_executable (QtWasmTemplate
     main.cpp
     emscripten_listener.h
     emscripten_listener.cpp
+    log_catcher.h
+    log_catcher.cpp
     sandbox_tools.h
     sandbox_tools.cpp)
 
