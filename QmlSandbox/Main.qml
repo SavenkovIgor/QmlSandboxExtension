@@ -47,6 +47,7 @@ Window {
     Item {
         id: qmlSandboxComponentWrapper
 
+        readonly property SandboxTools tools: SandboxTools{}
         property var codeItem: null
         property string file
         property string code
@@ -68,18 +69,10 @@ Window {
             }
         }
 
-        function cutTemplateModulePath(fileName) {
-            const wrongFileNamePrefix = 'qrc:/qt/qml/QtTemplateModule/';
-            if (fileName.startsWith(wrongFileNamePrefix)) {
-                return fileName.substring(wrongFileNamePrefix.length);
-            }
-            return fileName;
-        }
-
         function qmlErrorToVsCodeError(qmlError) {
             const vscodeError = qmlError;
             vscodeError.level = "ERROR";
-            vscodeError.fileName = cutTemplateModulePath(qmlError.fileName);
+            vscodeError.fileName = tools.cutSandboxPrefix(qmlError.fileName);
             vscodeError.functionName = "";
             return vscodeError;
         }
@@ -99,7 +92,7 @@ Window {
             }
 
             codeItem.grabToImage((result) => {
-                const base64Img = EmscriptenListener.imgToBase64(result.image);
+                const base64Img = tools.imgToBase64(result.image);
                 qmlSandboxWindow.jRpcController.sendJRpcToExtension('saveScreenshot', [ base64Img ]);
             });
         }
