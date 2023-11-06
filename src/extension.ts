@@ -9,6 +9,7 @@ let disposables: vscode.Disposable[] = [];
 let mainPanel: vscode.WebviewPanel | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
 let qmlStatusBar: QmlStatusBar | null = null;
+let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -66,6 +67,8 @@ export function activate(context: vscode.ExtensionContext) {
             updateWebviewContent(event.document, false);
         }
     });
+
+    diagnosticCollection = vscode.languages.createDiagnosticCollection(defaultTitle);
 
     context.subscriptions.push(qmlSandboxDisposable);
     context.subscriptions.push(screenshotQmlDisposable);
@@ -151,6 +154,25 @@ function saveScreenshot(pngData: string) {
     });
 }
 
+function setDiagnostics(diagnosticData: any) {
+    const currentFileUri = vscode.window.activeTextEditor?.document.uri;
+    if (!diagnosticCollection || !currentFileUri) {
+        return;
+    }
+
+    diagnosticCollection.clear();
+    let diagnostics: vscode.Diagnostic[] = [];
+    diagnosticData.forEach((diagnostic: any) => {
+        const { level, fileName, functionName, lineNumber, columnNumber, message } = diagnostic;
+        const start = new vscode.Position(lineNumber - 1, columnNumber - 1);
+        const range = new vscode.Range(start, start);
+        const vscodeLevel = level === 'ERROR' ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
+        const diag = new vscode.Diagnostic(range, message, vscodeLevel);
+        diagnostics.push(diag);
+    });
+    diagnosticCollection.set(currentFileUri, diagnostics);
+}
+
 function addQmlLog(logData: any) {
     const {level, file, functionName, line, msg} = logData;
     const timestamp = (new Date()).toISOString().substring(11, 23);
@@ -176,6 +198,10 @@ function sendJRpcToQml(method: string, params: any) {
 
 function receiveJRcpFromQml(jRpc: any) {
     switch (jRpc.method) {
+        case 'setDiagnostics':
+            setDiagnostics(jRpc.params);
+            break;
+
         case 'addLog':
             addQmlLog(jRpc.params);
             break;

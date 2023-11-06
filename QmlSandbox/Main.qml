@@ -27,6 +27,7 @@ Window {
                     qmlSandboxComponentWrapper.screenshot();
                     break;
                 case 'update':
+                    qmlSandboxComponentWrapper.file = jRpc.params.file;
                     qmlSandboxComponentWrapper.code = jRpc.params.source;
                     break;
                 default:
@@ -47,6 +48,7 @@ Window {
         id: qmlSandboxComponentWrapper
 
         property var codeItem: null
+        property string file
         property string code
         readonly property bool hasItem: codeItem != null
 
@@ -59,13 +61,35 @@ Window {
             }
 
             try {
-                codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper);
+                codeItem = Qt.createQmlObject(code, qmlSandboxComponentWrapper, file);
+                sendDiagnostics([]);
             } catch (error) {
-                for (let i = 0; i < error.qmlErrors.length; ++i) {
-                    const err = error.qmlErrors[i];
-                    EmscriptenListener.addLog("ERROR", err.fileName, "", err.lineNumber, err.message);
-                }
+                sendDiagnostics(error.qmlErrors);
             }
+        }
+
+        function cutTemplateModulePath(fileName) {
+            const wrongFileNamePrefix = 'qrc:/qt/qml/QtTemplateModule/';
+            if (fileName.startsWith(wrongFileNamePrefix)) {
+                return fileName.substring(wrongFileNamePrefix.length);
+            }
+            return fileName;
+        }
+
+        function qmlErrorToVsCodeError(qmlError) {
+            const vscodeError = qmlError;
+            vscodeError.level = "ERROR";
+            vscodeError.fileName = cutTemplateModulePath(qmlError.fileName);
+            vscodeError.functionName = "";
+            return vscodeError;
+        }
+
+        function sendDiagnostics(errors) {
+            let diagnostics = [];
+            for (let i = 0; i < errors.length; ++i) {
+                diagnostics.push(qmlErrorToVsCodeError(errors[i]));
+            }
+            qmlSandboxWindow.jRpcController.sendJRpcToExtension('setDiagnostics', diagnostics);
         }
 
         function screenshot() {
