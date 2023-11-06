@@ -22,6 +22,7 @@ class Project:
         self.venv_root        = self.root / 'env/python'
         self.qml_sandbox_root = self.root / 'QmlSandbox'
         self.wasm_engine_root = self.root / 'wasmQmlEngine'
+        self.preset           = 'wasm_release'
 
         self.lib        = self.root / 'lib'
         self.qt_root    = self.lib / 'Qt'
@@ -66,12 +67,12 @@ class Project:
         env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
         emsdk_prefix = f'source {self.emsdk_root}/emsdk_env.sh && '
-        run(f'{emsdk_prefix} cmake --preset=wasm_release -Wno-dev', env=env)  # Configure cmake
-        run(f'{emsdk_prefix} cmake --build --preset=wasm_release', env=env)  # Build
+        run(f'{emsdk_prefix} cmake --preset={self.preset} -Wno-dev', env=env)
+        run(f'{emsdk_prefix} cmake --build --preset={self.preset}', env=env)  # Build
 
     def deliver_qml(self):
         print(f'---Deliver qml build to repo root---')
-        build_path = self.qml_sandbox_root / 'build/wasm_release'
+        build_path = self.qml_sandbox_root / f'build/{self.preset}'
         shutil.copy(build_path / 'qtloader.js', self.wasm_engine_root)
         shutil.copy(build_path / 'qtlogo.svg', self.wasm_engine_root)
         shutil.copy(build_path / 'QtWasmTemplate.js', self.wasm_engine_root)
