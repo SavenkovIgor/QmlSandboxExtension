@@ -1,4 +1,4 @@
-#include "emscriptenlistener.h"
+#include "emscripten_listener.h"
 
 #include <QBuffer>
 #include <QJsonDocument>
@@ -69,15 +69,6 @@ void EmscriptenListener::addLog(QString level, QString file, QString function, i
         {"params", params}
     };
     sendJRpcToExtension(logObj);
-}
-
-QString EmscriptenListener::imgToBase64(QImage img)
-{
-    QByteArray data;
-    QBuffer dataDevice(&data);
-    img.save(&dataDevice, "PNG");
-
-    return data.toBase64();
 }
 
 EmscriptenListener::EmscriptenListener(QObject *parent)

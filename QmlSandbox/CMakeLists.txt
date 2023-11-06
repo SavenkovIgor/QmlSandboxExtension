@@ -18,8 +18,10 @@ qt_standard_project_setup(REQUIRES 6.6)
 
 qt_add_executable (QtWasmTemplate
     main.cpp
-    emscriptenlistener.h
-    emscriptenlistener.cpp)
+    emscripten_listener.h
+    emscripten_listener.cpp
+    sandbox_tools.h
+    sandbox_tools.cpp)
 
 set_target_properties (QtWasmTemplate
     PROPERTIES
