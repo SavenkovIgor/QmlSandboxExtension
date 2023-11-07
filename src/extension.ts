@@ -120,7 +120,10 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
         const filename = currentQmlFilename();
+        // Set title of current file
         mainPanel.title = `${defaultTitle} - ${filename}`;
+        // Clean up diagnostics
+        diagnosticCollection?.delete(document.uri);
         sendJRpcToQml('update', {
             file: filename,
             source: document.getText(),
@@ -175,11 +178,35 @@ function saveScreenshot(pngData: string) {
     });
 }
 
-function createDiagnostic(line: number, column: number, level: string, message: string) {
+function qmlErrorLevelToVSCode(level: string): vscode.DiagnosticSeverity {
+    // Remove all trailing and leading whitespace
+    level = level.replace(/^\s+|\s+$/g, '');
+    switch (level) {
+        case 'ERROR':
+            return vscode.DiagnosticSeverity.Error;
+        case 'WARNING':
+            return vscode.DiagnosticSeverity.Warning;
+        case 'INFO':
+            return vscode.DiagnosticSeverity.Information;
+        default:
+            return vscode.DiagnosticSeverity.Hint;
+    }
+}
+
+function createDiagnostic(line: number, column: number, level: string, message: string): vscode.Diagnostic {
     const start = new vscode.Position(line - 1, column - 1);
     const range = new vscode.Range(start, start);
-    const vscodeLevel = level === 'ERROR' ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
+    const vscodeLevel = qmlErrorLevelToVSCode(level);
     return new vscode.Diagnostic(range, message, vscodeLevel);
+}
+
+function addDiagnosticsToPanel(uri: vscode.Uri, diags: vscode.Diagnostic[]) {
+    if (!diagnosticCollection) {
+        return;
+    }
+    const currentDiagnostics = diagnosticCollection.get(uri);
+    const newDiagnostics = currentDiagnostics ? [...currentDiagnostics, ...diags] : diags;
+    diagnosticCollection.set(uri, newDiagnostics);
 }
 
 function setDiagnostics(diagnosticData: any) {
@@ -188,13 +215,34 @@ function setDiagnostics(diagnosticData: any) {
         return;
     }
 
-    diagnosticCollection.clear();
     let diagnostics: vscode.Diagnostic[] = [];
     diagnosticData.forEach((diagnostic: any) => {
         const { level, fileName, functionName, lineNumber, columnNumber, message } = diagnostic;
         diagnostics.push(createDiagnostic(lineNumber, columnNumber, level, message));
     });
-    diagnosticCollection.set(currentFileUri, diagnostics);
+    addDiagnosticsToPanel(currentFileUri, diagnostics);
+}
+
+function addLogOrDiagnostic(logData: any) {
+    const filename = currentQmlFilename();
+    let { message } = logData;
+    // if message starts with current filename, it is diagnostic
+    if (message.startsWith(filename)) {
+        addDiagnosticFromLog(logData);
+    } else {
+        addQmlLog(logData);
+    }
+}
+
+function addDiagnosticFromLog(logData: any) {
+    const uri = currentQmlDocument()?.uri;
+    if (!diagnosticCollection || !uri) {
+        return;
+    }
+
+    const { type, line, message } = logData;
+    const diag = createDiagnostic(line, 1, type, message);
+    addDiagnosticsToPanel(uri, [diag]);
 }
 
 function addQmlLog(logData: any) {
@@ -230,7 +278,7 @@ function receiveJRcpFromQml(jRpc: any) {
             break;
 
         case 'addLog':
-            addQmlLog(jRpc.params);
+            addLogOrDiagnostic(jRpc.params);
             break;
 
         case 'saveScreenshot':
