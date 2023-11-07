@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
-        const activeEditor = vscode.window.activeTextEditor;
+        const activeEditor = currentEditor();
         if (activeEditor) {
             updateWebviewContent(activeEditor.document, true);
         }
@@ -62,7 +62,11 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
-        const activeEditor = vscode.window.activeTextEditor;
+        // Ignore empty changes
+        if (event.contentChanges.length === 0) {
+            return;
+        }
+        const activeEditor = currentEditor();
         if (activeEditor && activeEditor.document === event.document) {
             updateWebviewContent(event.document, false);
         }
@@ -77,6 +81,27 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(textChange);
 }
 
+function currentEditor(): vscode.TextEditor | undefined {
+    return vscode.window.activeTextEditor;
+}
+
+function isQmlDocument(document: vscode.TextDocument) {
+    return document.languageId === 'qml';
+}
+
+function currentQmlDocument(): vscode.TextDocument | undefined {
+    const editor = currentEditor();
+    if (editor && isQmlDocument(editor.document)) {
+        return editor.document;
+    }
+    return undefined;
+}
+
+function currentQmlFilename(): string {
+    const document = currentQmlDocument();
+    return document ? path.basename(document.fileName) : '';
+}
+
 function createQmlPanel(roots: vscode.Uri[]) {
     return vscode.window.createWebviewPanel(
         'qmlSandbox',
@@ -89,17 +114,16 @@ function createQmlPanel(roots: vscode.Uri[]) {
     );
 }
 
-function isQmlDocument(document: vscode.TextDocument) {
-    return document.languageId === 'qml';
-}
-
 function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (!mainPanel || !isQmlDocument(document)) {
         return;
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
-        const filename = path.basename(document.fileName);
+        const filename = currentQmlFilename();
+        // Set title of current file
         mainPanel.title = `${defaultTitle} - ${filename}`;
+        // Clean up diagnostics
+        diagnosticCollection?.delete(document.uri);
         sendJRpcToQml('update', {
             file: filename,
             source: document.getText(),
@@ -131,7 +155,7 @@ function defaultScreenshotDir(): vscode.Uri {
         return workspaceFolderUri;
     }
 
-    const document = vscode.window.activeTextEditor?.document;
+    const document = currentQmlDocument();
     if (document && !document.isUntitled) {
         return vscode.Uri.file(path.dirname(document.uri.fsPath));
     }
@@ -154,29 +178,80 @@ function saveScreenshot(pngData: string) {
     });
 }
 
+function qmlErrorLevelToVSCode(level: string): vscode.DiagnosticSeverity {
+    // Remove all trailing and leading whitespace
+    level = level.replace(/^\s+|\s+$/g, '');
+    switch (level) {
+        case 'ERROR':
+            return vscode.DiagnosticSeverity.Error;
+        case 'WARNING':
+            return vscode.DiagnosticSeverity.Warning;
+        case 'INFO':
+            return vscode.DiagnosticSeverity.Information;
+        default:
+            return vscode.DiagnosticSeverity.Hint;
+    }
+}
+
+function createDiagnostic(line: number, column: number, level: string, message: string): vscode.Diagnostic {
+    const start = new vscode.Position(line - 1, column - 1);
+    const range = new vscode.Range(start, start);
+    const vscodeLevel = qmlErrorLevelToVSCode(level);
+    return new vscode.Diagnostic(range, message, vscodeLevel);
+}
+
+function addDiagnosticsToPanel(uri: vscode.Uri, diags: vscode.Diagnostic[]) {
+    if (!diagnosticCollection) {
+        return;
+    }
+    const currentDiagnostics = diagnosticCollection.get(uri);
+    const newDiagnostics = currentDiagnostics ? [...currentDiagnostics, ...diags] : diags;
+    diagnosticCollection.set(uri, newDiagnostics);
+}
+
 function setDiagnostics(diagnosticData: any) {
-    const currentFileUri = vscode.window.activeTextEditor?.document.uri;
+    const currentFileUri = currentQmlDocument()?.uri;
     if (!diagnosticCollection || !currentFileUri) {
         return;
     }
 
-    diagnosticCollection.clear();
     let diagnostics: vscode.Diagnostic[] = [];
     diagnosticData.forEach((diagnostic: any) => {
         const { level, fileName, functionName, lineNumber, columnNumber, message } = diagnostic;
-        const start = new vscode.Position(lineNumber - 1, columnNumber - 1);
-        const range = new vscode.Range(start, start);
-        const vscodeLevel = level === 'ERROR' ? vscode.DiagnosticSeverity.Error : vscode.DiagnosticSeverity.Warning;
-        const diag = new vscode.Diagnostic(range, message, vscodeLevel);
-        diagnostics.push(diag);
+        diagnostics.push(createDiagnostic(lineNumber, columnNumber, level, message));
     });
-    diagnosticCollection.set(currentFileUri, diagnostics);
+    addDiagnosticsToPanel(currentFileUri, diagnostics);
+}
+
+function addLogOrDiagnostic(logData: any) {
+    const filename = currentQmlFilename();
+    let { message } = logData;
+    // if message starts with current filename, it is diagnostic
+    if (message.startsWith(filename)) {
+        addDiagnosticFromLog(logData);
+    } else {
+        addQmlLog(logData);
+    }
+}
+
+function addDiagnosticFromLog(logData: any) {
+    const uri = currentQmlDocument()?.uri;
+    if (!diagnosticCollection || !uri) {
+        return;
+    }
+
+    const { type, line, message } = logData;
+    const diag = createDiagnostic(line, 1, type, message);
+    addDiagnosticsToPanel(uri, [diag]);
 }
 
 function addQmlLog(logData: any) {
-    const {level, file, functionName, line, msg} = logData;
+    let {type, line, file, functionName, category,  message} = logData;
     const timestamp = (new Date()).toISOString().substring(11, 23);
-    const logLine = `[${timestamp}:${level}:${file}(${line}) ${functionName}] ${msg}`;
+    file = file ? file : '';
+    category = category ? category : '';
+    functionName = functionName ? functionName : '';
+    const logLine = `[${timestamp}:${category}:${type}:${file}(${line}) ${functionName}] ${message}`;
     addLog(logLine);
 }
 
@@ -203,7 +278,7 @@ function receiveJRcpFromQml(jRpc: any) {
             break;
 
         case 'addLog':
-            addQmlLog(jRpc.params);
+            addLogOrDiagnostic(jRpc.params);
             break;
 
         case 'saveScreenshot':
