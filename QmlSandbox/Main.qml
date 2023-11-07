@@ -10,13 +10,17 @@ import QtTemplateModule
 Window {
     id: qmlSandboxWindow
 
+    readonly property SandboxTools tools: SandboxTools{}
+
     visible: true
 
     Connections {
         target: LogCatcher
 
-        function onNewLogMessage(message) {
-            qmlSandboxWindow.jRpcController.sendJRpcToExtension('addLog', message);
+        function onNewLogMessage(logMsg) {
+            logMsg.file = qmlSandboxWindow.tools.cutSandboxPrefix(logMsg.file);
+            logMsg.message = qmlSandboxWindow.tools.cutSandboxPrefix(logMsg.message);
+            qmlSandboxWindow.jRpcController.sendJRpcToExtension('addLog', logMsg);
         }
     }
 
@@ -52,7 +56,6 @@ Window {
     Item {
         id: qmlSandboxComponentWrapper
 
-        readonly property SandboxTools tools: SandboxTools{}
         property var codeItem: null
         property string file
         property string code
@@ -77,7 +80,7 @@ Window {
         function qmlErrorToVsCodeError(qmlError) {
             const vscodeError = qmlError;
             vscodeError.level = "ERROR";
-            vscodeError.fileName = tools.cutSandboxPrefix(qmlError.fileName);
+            vscodeError.fileName = qmlSandboxWindow.tools.cutSandboxPrefix(qmlError.fileName);
             vscodeError.functionName = "";
             return vscodeError;
         }
@@ -97,7 +100,7 @@ Window {
             }
 
             codeItem.grabToImage((result) => {
-                const base64Img = tools.imgToBase64(result.image);
+                const base64Img = qmlSandboxWindow.tools.imgToBase64(result.image);
                 qmlSandboxWindow.jRpcController.sendJRpcToExtension('saveScreenshot', [ base64Img ]);
             });
         }
