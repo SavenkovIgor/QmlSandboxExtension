@@ -62,6 +62,10 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
+        // Ignore empty changes
+        if (event.contentChanges.length === 0) {
+            return;
+        }
         const activeEditor = currentEditor();
         if (activeEditor && activeEditor.document === event.document) {
             updateWebviewContent(event.document, false);
