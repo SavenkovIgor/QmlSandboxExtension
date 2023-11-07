@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
-        const activeEditor = vscode.window.activeTextEditor;
+        const activeEditor = currentEditor();
         if (activeEditor) {
             updateWebviewContent(activeEditor.document, true);
         }
@@ -62,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const textChange = vscode.workspace.onDidChangeTextDocument(event => {
-        const activeEditor = vscode.window.activeTextEditor;
+        const activeEditor = currentEditor();
         if (activeEditor && activeEditor.document === event.document) {
             updateWebviewContent(event.document, false);
         }
@@ -77,6 +77,27 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(textChange);
 }
 
+function currentEditor(): vscode.TextEditor | undefined {
+    return vscode.window.activeTextEditor;
+}
+
+function isQmlDocument(document: vscode.TextDocument) {
+    return document.languageId === 'qml';
+}
+
+function currentQmlDocument(): vscode.TextDocument | undefined {
+    const editor = currentEditor();
+    if (editor && isQmlDocument(editor.document)) {
+        return editor.document;
+    }
+    return undefined;
+}
+
+function currentQmlFilename(): string {
+    const document = currentQmlDocument();
+    return document ? path.basename(document.fileName) : '';
+}
+
 function createQmlPanel(roots: vscode.Uri[]) {
     return vscode.window.createWebviewPanel(
         'qmlSandbox',
@@ -89,16 +110,12 @@ function createQmlPanel(roots: vscode.Uri[]) {
     );
 }
 
-function isQmlDocument(document: vscode.TextDocument) {
-    return document.languageId === 'qml';
-}
-
 function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (!mainPanel || !isQmlDocument(document)) {
         return;
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
-        const filename = path.basename(document.fileName);
+        const filename = currentQmlFilename();
         mainPanel.title = `${defaultTitle} - ${filename}`;
         sendJRpcToQml('update', {
             file: filename,
@@ -131,7 +148,7 @@ function defaultScreenshotDir(): vscode.Uri {
         return workspaceFolderUri;
     }
 
-    const document = vscode.window.activeTextEditor?.document;
+    const document = currentQmlDocument();
     if (document && !document.isUntitled) {
         return vscode.Uri.file(path.dirname(document.uri.fsPath));
     }
@@ -155,7 +172,7 @@ function saveScreenshot(pngData: string) {
 }
 
 function setDiagnostics(diagnosticData: any) {
-    const currentFileUri = vscode.window.activeTextEditor?.document.uri;
+    const currentFileUri = currentQmlDocument()?.uri;
     if (!diagnosticCollection || !currentFileUri) {
         return;
     }
