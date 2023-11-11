@@ -15,7 +15,7 @@
 * Add support for debug build in CMakePresets.json ([#90](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/90))
 * Create Sandbox tools qml component ([#91](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/91))
 * Create template for release task ([#93](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/93))
-* Fill in changelog from releases description ([#94](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/95))
+* Fill in changelog from releases description ([#95](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/95))
 
 ## v5.0.1
 
