@@ -6,7 +6,7 @@ labels: ''
 assignees: ''
 ---
 
-## Tasks
+### Tasks
 
 - [ ] Add changes to Changelog
 - [ ] Up version in `package.json`
