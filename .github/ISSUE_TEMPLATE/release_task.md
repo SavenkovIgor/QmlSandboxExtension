@@ -6,8 +6,9 @@ labels: ''
 assignees: ''
 ---
 
-## Tasks
+### Tasks
 
 - [ ] Add changes to Changelog
+- [ ] Check that all examples at `examples` folder are working
 - [ ] Up version in `package.json`
 - [ ] Make release tag with changes from Changelog
