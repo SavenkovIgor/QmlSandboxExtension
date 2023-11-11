@@ -1,5 +1,22 @@
 # Changelog
 
+## v6.0.1
+
+### Changed
+
+* Send qml diagnostics to VS Code problems tab [#87](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/87)
+* Add qml LogCatcher and redirect warnings to Problems section [#92](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/92)
+
+### Fixed
+
+* Path cleanup and move window handlers to separate file [#79](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/79)
+* Update output channel name and webView title [#81](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/81)
+* Switch to json commands [#83](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/83)
+* Add support for debug build in CMakePresets.json [#90](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/90)
+* Create Sandbox tools qml component [#91](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/91)
+* Create template for release task [#93](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/93)
+* Fill in changelog from releases description [#94](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/95)
+
 ## v5.0.1
 
 ### Added
