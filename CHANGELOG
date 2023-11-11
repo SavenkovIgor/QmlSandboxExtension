@@ -1,6 +1,33 @@
 # Changelog
 
-## v3.0.0
+## v5.0.1
+
+### Added
+
+- Added QtQuick3d (working example could be found [here](https://doc.qt.io/qt-6/qtquick3d-intro-main-qml.html))
+
+### Changed
+
+- Switch to Qt 6.6.0
+
+### Fixed
+
+- Paths substitution refactor
+
+## v4.0.1
+
+### Added
+
+- Added some images and a Quick Start section to README.md.
+- Added a status-bar item to disable live-updates during editing, addressing
+  certain corner-cases.
+- Introduced a command for manual WebView updating.
+
+### Changed
+
+- Conducted some code cleanup.
+
+## v3.0.1
 
 ### Added
 
@@ -20,5 +47,18 @@
 
 - Abbreviations and some readme fixes (#39)
 - Fix Qml id's, so they don't conflict with user's id's (#30)
-- Fix Visual Studio Code C++ prebuild (#29)
-- 21 Fix GitHub actions and automatic delivery to the Visual Studio Code marketplace (#24)
+- Fix Visual Studio Code C++ prebuilt (#29)
+- 21 Fix GitHub actions and automatic delivery to the Visual Studio Code
+  marketplace (#24)
+
+## v2.0.0
+
+### Added
+
+- Add screenshots and logo
+
+## v1.0.0
+
+### Added
+
+- Add drawer with qml errors
