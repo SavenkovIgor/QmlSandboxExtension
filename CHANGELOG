@@ -22,3 +22,15 @@
 - Fix Qml id's, so they don't conflict with user's id's (#30)
 - Fix Visual Studio Code C++ prebuild (#29)
 - 21 Fix GitHub actions and automatic delivery to the Visual Studio Code marketplace (#24)
+
+## v2.0.0
+
+### Added
+
+- Add screenshots and logo
+
+## v1.0.0
+
+### Added
+
+- Add drawer with qml errors
