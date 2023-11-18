@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import { QmlStatusBar } from './qmlStatusBar';
+import { JRpcController } from './JRpcController';
 
 const extPrefix = 'QmlSandboxExtension';
 const defaultTitle = 'Qml Sandbox';
@@ -10,6 +11,7 @@ let mainPanel: vscode.WebviewPanel | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
 let qmlStatusBar: QmlStatusBar | null = null;
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
+const jRpcController = new JRpcController();
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -71,6 +73,10 @@ export function activate(context: vscode.ExtensionContext) {
             updateWebviewContent(event.document, false);
         }
     });
+
+    jRpcController.addHandler('setDiagnostics', setDiagnostics);
+    jRpcController.addHandler('addLog', addLogOrDiagnostic);
+    jRpcController.addHandler('saveScreenshot', saveScreenshot);
 
     diagnosticCollection = vscode.languages.createDiagnosticCollection(defaultTitle);
 
@@ -272,23 +278,7 @@ function sendJRpcToQml(method: string, params: any) {
 }
 
 function receiveJRcpFromQml(jRpc: any) {
-    switch (jRpc.method) {
-        case 'setDiagnostics':
-            setDiagnostics(jRpc.params);
-            break;
-
-        case 'addLog':
-            addLogOrDiagnostic(jRpc.params);
-            break;
-
-        case 'saveScreenshot':
-            saveScreenshot(jRpc.params[0]);
-            break;
-
-        default:
-            console.error(`Unknown message type: ${jRpc.method}`);
-            break;
-    }
+    jRpcController.receiveJRcpFromQml(jRpc);
 }
 
 // This method is called when your extension is deactivated
