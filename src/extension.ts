@@ -25,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
 
-        qmlWebView = new QmlWebViewController(createQmlPanel([qmlEngineDir]));
+        qmlWebView = new QmlWebViewController(qmlEngineDir);
 
         vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
         qmlStatusBar?.reset();
@@ -44,9 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
         qmlWebView.onNewSetDiagnostics(setDiagnostics);
         qmlWebView.onNewLog(addLogOrDiagnostic);
         qmlWebView.onNewSaveScreenshot(saveScreenshot);
-
-        const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
-        loadWebView(indexHtmlPath, qmlEngineDir);
+        qmlWebView.loadHtml();
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
@@ -107,18 +105,6 @@ function currentQmlFilename(): string {
     return document ? path.basename(document.fileName) : '';
 }
 
-function createQmlPanel(roots: vscode.Uri[]) {
-    return vscode.window.createWebviewPanel(
-        'qmlSandbox',
-        defaultTitle,
-        vscode.ViewColumn.Two,
-        {
-            enableScripts: true,
-            localResourceRoots: roots
-        }
-    );
-}
-
 function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     if (!qmlWebView || !isQmlDocument(document)) {
         return;
@@ -129,24 +115,6 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
         diagnosticCollection?.delete(document.uri);
         qmlWebView?.setQml(filename, document.getText());
     }
-}
-
-function loadWebView(indexHtmlPath: vscode.Uri, qmlEngineDir: vscode.Uri) {
-    vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
-        if (!qmlWebView) {
-            return;
-        }
-
-        qmlWebView.mainPanel.webview.html = injectWebRoot(fileData.toString(), qmlEngineDir);
-    });
-}
-
-function injectWebRoot(html: string, webRootUri: vscode.Uri): string {
-    if (qmlWebView) {
-        const webRoot = qmlWebView.mainPanel.webview.asWebviewUri(webRootUri).toString();
-        return html.replace(/#{webRoot}/g, webRoot);
-    }
-    return "";
 }
 
 function defaultScreenshotDir(): vscode.Uri {

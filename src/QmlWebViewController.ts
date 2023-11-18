@@ -4,10 +4,20 @@ import { JRpcController } from './JRpcController';
 export class QmlWebViewController {
     private defaultTitle = 'Qml Sandbox';
     private jRpcController = new JRpcController();
+    private qmlEngineDir: vscode.Uri;
     public mainPanel: vscode.WebviewPanel;
 
-    constructor(panel: vscode.WebviewPanel) {
-        this.mainPanel = panel;
+    constructor(qmlEngineDir: vscode.Uri) {
+        this.qmlEngineDir = qmlEngineDir;
+        this.mainPanel = vscode.window.createWebviewPanel(
+            'qmlSandbox',
+            this.defaultTitle,
+            vscode.ViewColumn.Two,
+            {
+                enableScripts: true,
+                localResourceRoots: [qmlEngineDir]
+            }
+        );
         this.mainPanel.title = this.defaultTitle;
     }
 
@@ -25,6 +35,17 @@ export class QmlWebViewController {
 
     public onNewSaveScreenshot(handler: Function) {
         this.jRpcController.setHandler('saveScreenshot', handler);
+    }
+
+    public loadHtml() {
+        const indexHtmlPath = vscode.Uri.joinPath(this.qmlEngineDir, 'index.html');
+        vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
+            let html = fileData.toString();
+            // Inject webRoot into html
+            const webRoot = this.mainPanel.webview.asWebviewUri(this.qmlEngineDir).toString();
+            html = html.replace(/#{webRoot}/g, webRoot);
+            this.mainPanel.webview.html = html;
+        });
     }
 
     public makeScreenshot() {
