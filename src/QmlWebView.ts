@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
 import { JRpcController } from './JRpcController';
 
-export class QmlWebViewController {
+export class QmlWebView {
     private defaultTitle = 'Qml Sandbox';
     private jRpcController = new JRpcController();
     private qmlEngineDir: vscode.Uri;
-    public mainPanel: vscode.WebviewPanel;
+    public view: vscode.WebviewPanel;
 
     constructor(qmlEngineDir: vscode.Uri) {
         this.qmlEngineDir = qmlEngineDir;
-        this.mainPanel = vscode.window.createWebviewPanel(
+        this.view = vscode.window.createWebviewPanel(
             'qmlSandbox',
             this.defaultTitle,
             vscode.ViewColumn.Two,
@@ -18,7 +18,6 @@ export class QmlWebViewController {
                 localResourceRoots: [qmlEngineDir]
             }
         );
-        this.mainPanel.title = this.defaultTitle;
     }
 
     public receiveJRcpFromQml(jRpc: any) {
@@ -42,9 +41,9 @@ export class QmlWebViewController {
         vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
             let html = fileData.toString();
             // Inject webRoot into html
-            const webRoot = this.mainPanel.webview.asWebviewUri(this.qmlEngineDir).toString();
+            const webRoot = this.view.webview.asWebviewUri(this.qmlEngineDir).toString();
             html = html.replace(/#{webRoot}/g, webRoot);
-            this.mainPanel.webview.html = html;
+            this.view.webview.html = html;
         });
     }
 
@@ -54,7 +53,7 @@ export class QmlWebViewController {
 
     public setQml(filename: string, qmlSource: string) {
         // Set title of current file
-        this.mainPanel.title = `${this.defaultTitle} - ${filename}`;
+        this.view.title = `${this.defaultTitle} - ${filename}`;
         this.sendJRpc('update', { file: filename, source: qmlSource });
     }
 
@@ -66,6 +65,6 @@ export class QmlWebViewController {
     // I hope compatibility will be improved in the future
     private sendJRpc(method: string, params: any) {
         const cmd = { method: method, params: params };
-        this.mainPanel.webview.postMessage(cmd);
+        this.view.webview.postMessage(cmd);
     }
 }

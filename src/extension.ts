@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import { QmlStatusBar } from './qmlStatusBar';
-import { QmlWebViewController } from './QmlWebViewController';
+import { QmlWebView } from './QmlWebView';
 
 const extPrefix = 'QmlSandboxExtension';
 const defaultTitle = 'Qml Sandbox';
 let disposables: vscode.Disposable[] = [];
-let qmlWebView: QmlWebViewController | null = null;
+let qmlWebView: QmlWebView | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
 let qmlStatusBar: QmlStatusBar | null = null;
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
@@ -21,23 +21,23 @@ export function activate(context: vscode.ExtensionContext) {
 
     const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
         if (qmlWebView) {
-            qmlWebView.mainPanel.reveal();
+            qmlWebView.view.reveal();
             return;
         }
 
-        qmlWebView = new QmlWebViewController(qmlEngineDir);
+        qmlWebView = new QmlWebView(qmlEngineDir);
 
         vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
         qmlStatusBar?.reset();
         qmlStatusBar?.show();
 
-        qmlWebView.mainPanel.onDidDispose(() => {
+        qmlWebView.view.onDidDispose(() => {
             qmlWebView = null;
             qmlStatusBar?.hide();
             vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
         }, null, context.subscriptions);
 
-        qmlWebView.mainPanel.webview.onDidReceiveMessage(jRpc => {
+        qmlWebView.view.webview.onDidReceiveMessage(jRpc => {
             qmlWebView?.receiveJRcpFromQml(jRpc);
         }, null, context.subscriptions);
 
