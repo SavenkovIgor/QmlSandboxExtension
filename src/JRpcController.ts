@@ -4,7 +4,7 @@ export class JRpcController {
 
     constructor() { }
 
-    public addHandler(method: string, handler: Function) {
+    public setHandler(method: string, handler: Function) {
         this.handlers.set(method, handler);
     }
 
