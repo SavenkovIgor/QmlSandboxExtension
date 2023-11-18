@@ -50,7 +50,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
-        sendJRpcToQml('makeScreenshot', []);
+        qmlWebView?.makeScreenshot();
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
@@ -125,14 +125,9 @@ function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
         const filename = currentQmlFilename();
-        // Set title of current file
-        qmlWebView.mainPanel.title = `${defaultTitle} - ${filename}`;
         // Clean up diagnostics
         diagnosticCollection?.delete(document.uri);
-        sendJRpcToQml('update', {
-            file: filename,
-            source: document.getText(),
-        });
+        qmlWebView?.setQml(filename, document.getText());
     }
 }
 
@@ -263,20 +258,6 @@ function addQmlLog(logData: any) {
 function addLog(line: string) {
     outputChannel?.appendLine(line);
     outputChannel?.show(true);
-}
-
-// This is not exactly a 100% compatible with JRpc, because
-// it is executed in controlled environment, and we can be sure about
-// possible types of arguments, errors, etc.
-// It is compatible with JRpc in a sense that it uses the same
-// field names and structure of the message.
-// I hope compatibility will be improved in the future
-function sendJRpcToQml(method: string, params: any) {
-    if (!qmlWebView) {
-        return;
-    }
-    const cmd = { method: method, params: params };
-    qmlWebView.mainPanel.webview.postMessage(cmd);
 }
 
 // This method is called when your extension is deactivated
