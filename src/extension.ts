@@ -210,7 +210,14 @@ function addDiagnosticFromLog(logData: any) {
         return;
     }
 
-    const { type, line, message } = logData;
+    let { type, line, message } = logData;
+    // If message format: <filename>:<line>: <message>
+    // We need to remove this filename:line: prefix
+    // because they are already in logData
+    const prefix = `${currentQmlFilename()}:${line}:`;
+    if (message.startsWith(prefix)) {
+        message = message.substring(prefix.length);
+    }
     const diag = createDiagnostic(line, 1, type, message);
     addDiagnosticsToPanel(uri, [diag]);
 }
