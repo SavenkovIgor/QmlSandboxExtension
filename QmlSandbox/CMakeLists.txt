@@ -3,7 +3,7 @@
 
 cmake_minimum_required (VERSION 3.25.0)
 
-project (QtWasmTemplate
+project (QmlSandbox
          LANGUAGES CXX)
 
 if (NOT DEFINED ENV{EMSDK})
@@ -16,7 +16,7 @@ find_package (Qt6 REQUIRED COMPONENTS Quick Quick3D)
 
 qt_standard_project_setup(REQUIRES 6.6)
 
-qt_add_executable (QtWasmTemplate
+qt_add_executable (QmlSandbox
     main.cpp
     emscripten_listener.h
     emscripten_listener.cpp
@@ -25,15 +25,15 @@ qt_add_executable (QtWasmTemplate
     sandbox_tools.h
     sandbox_tools.cpp)
 
-set_target_properties (QtWasmTemplate
+set_target_properties (QmlSandbox
     PROPERTIES
         AUTOMOC ON
         CXX_STANDARD 20
         CXX_STANDARD_REQUIRED ON)
 
-qt_add_qml_module (QtWasmTemplate
+qt_add_qml_module (QmlSandbox
     URI QtTemplateModule
     VERSION 1.0
     QML_FILES Main.qml)
 
-target_link_libraries (QtWasmTemplate PRIVATE Qt::Quick Qt::Quick3D)
+target_link_libraries (QmlSandbox PRIVATE Qt::Quick Qt::Quick3D)
