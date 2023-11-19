@@ -125,9 +125,17 @@ function defaultScreenshotDir(): vscode.Uri {
     return vscode.Uri.file(os.homedir());
 }
 
-function saveScreenshot(pngData: string) {
+function saveScreenshot(params: any) {
+    const pngData: string = params[0];
+    if (!pngData) {
+        return;
+    }
+    let qmlFilename = currentQmlFilename();
+    // Remove qml file extension
+    qmlFilename = qmlFilename.replace(/\.qml$/, '');
+    const filename = qmlFilename ? `${qmlFilename}.png` : 'screenshot.png';
     let options = {
-        defaultUri: vscode.Uri.joinPath(defaultScreenshotDir(), 'screenshot.png'),
+        defaultUri: vscode.Uri.joinPath(defaultScreenshotDir(), filename),
         title: 'Save screenshot',
     };
     vscode.window.showSaveDialog(options).then(fileUri => {
