@@ -2,11 +2,12 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import { QmlStatusBar } from './qmlStatusBar';
+import { QmlWebView } from './QmlWebView';
 
 const extPrefix = 'QmlSandboxExtension';
 const defaultTitle = 'Qml Sandbox';
 let disposables: vscode.Disposable[] = [];
-let mainPanel: vscode.WebviewPanel | null = null;
+let qmlWebView: QmlWebView | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
 let qmlStatusBar: QmlStatusBar | null = null;
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
@@ -19,33 +20,29 @@ export function activate(context: vscode.ExtensionContext) {
     outputChannel = vscode.window.createOutputChannel(defaultTitle);
 
     const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
-        if (mainPanel) {
-            mainPanel.reveal();
+        if (qmlWebView) {
+            qmlWebView.reveal();
             return;
         }
 
-        mainPanel = createQmlPanel([qmlEngineDir]);
-
-        vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+        qmlWebView = new QmlWebView(qmlEngineDir, context.subscriptions);
         qmlStatusBar?.reset();
         qmlStatusBar?.show();
 
-        mainPanel.onDidDispose(() => {
-            mainPanel = null;
+        qmlWebView.onNewSetDiagnostics(setDiagnostics);
+        qmlWebView.onNewLog(addLogOrDiagnostic);
+        qmlWebView.onNewSaveScreenshot(saveScreenshot);
+
+        qmlWebView.onDispose(() => {
+            qmlWebView = null;
             qmlStatusBar?.hide();
-            vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
-        }, null, context.subscriptions);
+        });
 
-        mainPanel.webview.onDidReceiveMessage(jRpc => {
-            receiveJRcpFromQml(jRpc);
-        }, null, context.subscriptions);
-
-        const indexHtmlPath = vscode.Uri.joinPath(qmlEngineDir, 'index.html');
-        loadWebView(indexHtmlPath, qmlEngineDir);
+        qmlWebView.loadHtml();
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
-        sendJRpcToQml('makeScreenshot', []);
+        qmlWebView?.makeScreenshot();
     });
 
     const updateWebViewCmd = vscode.commands.registerCommand(`${extPrefix}.updateWebView`, () => {
@@ -102,51 +99,16 @@ function currentQmlFilename(): string {
     return document ? path.basename(document.fileName) : '';
 }
 
-function createQmlPanel(roots: vscode.Uri[]) {
-    return vscode.window.createWebviewPanel(
-        'qmlSandbox',
-        defaultTitle,
-        vscode.ViewColumn.Two,
-        {
-            enableScripts: true,
-            localResourceRoots: roots
-        }
-    );
-}
-
 function updateWebviewContent(document: vscode.TextDocument, force: boolean) {
-    if (!mainPanel || !isQmlDocument(document)) {
+    if (!qmlWebView || !isQmlDocument(document)) {
         return;
     }
     if (qmlStatusBar?.isLiveUpdate() || force) {
         const filename = currentQmlFilename();
-        // Set title of current file
-        mainPanel.title = `${defaultTitle} - ${filename}`;
         // Clean up diagnostics
         diagnosticCollection?.delete(document.uri);
-        sendJRpcToQml('update', {
-            file: filename,
-            source: document.getText(),
-        });
+        qmlWebView?.setQml(filename, document.getText());
     }
-}
-
-function loadWebView(indexHtmlPath: vscode.Uri, qmlEngineDir: vscode.Uri) {
-    vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
-        if (!mainPanel) {
-            return;
-        }
-
-        mainPanel.webview.html = injectWebRoot(fileData.toString(), qmlEngineDir);
-    });
-}
-
-function injectWebRoot(html: string, webRootUri: vscode.Uri): string {
-    if (mainPanel) {
-        const webRoot = mainPanel.webview.asWebviewUri(webRootUri).toString();
-        return html.replace(/#{webRoot}/g, webRoot);
-    }
-    return "";
 }
 
 function defaultScreenshotDir(): vscode.Uri {
@@ -258,37 +220,6 @@ function addQmlLog(logData: any) {
 function addLog(line: string) {
     outputChannel?.appendLine(line);
     outputChannel?.show(true);
-}
-
-// This is not exactly a 100% compatible with JRpc, because
-// it is executed in controlled environment, and we can be sure about
-// possible types of arguments, errors, etc.
-// It is compatible with JRpc in a sense that it uses the same
-// field names and structure of the message.
-// I hope compatibility will be improved in the future
-function sendJRpcToQml(method: string, params: any) {
-    const cmd = { method: method, params: params };
-    mainPanel?.webview.postMessage(cmd);
-}
-
-function receiveJRcpFromQml(jRpc: any) {
-    switch (jRpc.method) {
-        case 'setDiagnostics':
-            setDiagnostics(jRpc.params);
-            break;
-
-        case 'addLog':
-            addLogOrDiagnostic(jRpc.params);
-            break;
-
-        case 'saveScreenshot':
-            saveScreenshot(jRpc.params[0]);
-            break;
-
-        default:
-            console.error(`Unknown message type: ${jRpc.method}`);
-            break;
-    }
 }
 
 // This method is called when your extension is deactivated
