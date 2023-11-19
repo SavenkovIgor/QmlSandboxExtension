@@ -7,8 +7,8 @@ node_modules
 # Hide some files in wasmQmlEngine
 wasmQmlEngine/qtlogo.svg
 wasmQmlEngine/qtloader.js
-wasmQmlEngine/QtWasmTemplate.js
-wasmQmlEngine/QtWasmTemplate.wasm
+wasmQmlEngine/QmlSandbox.js
+wasmQmlEngine/QmlSandbox.wasm
 
 # C++ objects and libs
 QmlSandbox/*.slo

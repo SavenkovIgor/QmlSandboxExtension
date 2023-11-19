@@ -75,8 +75,8 @@ class Project:
         build_path = self.qml_sandbox_root / f'build/{self.preset}'
         shutil.copy(build_path / 'qtloader.js', self.wasm_engine_root)
         shutil.copy(build_path / 'qtlogo.svg', self.wasm_engine_root)
-        shutil.copy(build_path / 'QtWasmTemplate.js', self.wasm_engine_root)
-        shutil.copy(build_path / 'QtWasmTemplate.wasm', self.wasm_engine_root)
+        shutil.copy(build_path / 'QmlSandbox.js', self.wasm_engine_root)
+        shutil.copy(build_path / 'QmlSandbox.wasm', self.wasm_engine_root)
 
     def remove_build(self):
         print(f'---Remove build folder---')
