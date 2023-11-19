@@ -21,29 +21,23 @@ export function activate(context: vscode.ExtensionContext) {
 
     const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
         if (qmlWebView) {
-            qmlWebView.view.reveal();
+            qmlWebView.reveal();
             return;
         }
 
-        qmlWebView = new QmlWebView(qmlEngineDir);
-
-        vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+        qmlWebView = new QmlWebView(qmlEngineDir, context.subscriptions);
         qmlStatusBar?.reset();
         qmlStatusBar?.show();
-
-        qmlWebView.view.onDidDispose(() => {
-            qmlWebView = null;
-            qmlStatusBar?.hide();
-            vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
-        }, null, context.subscriptions);
-
-        qmlWebView.view.webview.onDidReceiveMessage(jRpc => {
-            qmlWebView?.receiveJRcpFromQml(jRpc);
-        }, null, context.subscriptions);
 
         qmlWebView.onNewSetDiagnostics(setDiagnostics);
         qmlWebView.onNewLog(addLogOrDiagnostic);
         qmlWebView.onNewSaveScreenshot(saveScreenshot);
+
+        qmlWebView.onDispose(() => {
+            qmlWebView = null;
+            qmlStatusBar?.hide();
+        });
+
         qmlWebView.loadHtml();
     });
 

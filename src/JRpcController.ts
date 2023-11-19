@@ -2,8 +2,6 @@
 export class JRpcController {
     private handlers: Map<string, Function> = new Map();
 
-    constructor() { }
-
     public setHandler(method: string, handler: Function) {
         this.handlers.set(method, handler);
     }

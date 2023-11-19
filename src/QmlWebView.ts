@@ -5,9 +5,10 @@ export class QmlWebView {
     private defaultTitle = 'Qml Sandbox';
     private jRpcController = new JRpcController();
     private qmlEngineDir: vscode.Uri;
-    public view: vscode.WebviewPanel;
+    private disposeHandler: Function = () => { };
+    private view: vscode.WebviewPanel;
 
-    constructor(qmlEngineDir: vscode.Uri) {
+    constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {
         this.qmlEngineDir = qmlEngineDir;
         this.view = vscode.window.createWebviewPanel(
             'qmlSandbox',
@@ -18,10 +19,17 @@ export class QmlWebView {
                 localResourceRoots: [qmlEngineDir]
             }
         );
-    }
 
-    public receiveJRcpFromQml(jRpc: any) {
-        this.jRpcController.receiveJRcpFromQml(jRpc);
+        this.view.webview.onDidReceiveMessage(jRpc => {
+            this.jRpcController.receiveJRcpFromQml(jRpc);
+        }, null, subscriptions);
+
+        vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+
+        this.view.onDidDispose(() => {
+            vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
+            this.disposeHandler();
+        }, null, subscriptions);
     }
 
     public onNewSetDiagnostics(handler: Function) {
@@ -36,6 +44,10 @@ export class QmlWebView {
         this.jRpcController.setHandler('saveScreenshot', handler);
     }
 
+    public onDispose(handler: Function) {
+        this.disposeHandler = handler;
+    }
+
     public loadHtml() {
         const indexHtmlPath = vscode.Uri.joinPath(this.qmlEngineDir, 'index.html');
         vscode.workspace.fs.readFile(indexHtmlPath).then(fileData => {
@@ -45,6 +57,10 @@ export class QmlWebView {
             html = html.replace(/#{webRoot}/g, webRoot);
             this.view.webview.html = html;
         });
+    }
+
+    public reveal() {
+        this.view.reveal();
     }
 
     public makeScreenshot() {
