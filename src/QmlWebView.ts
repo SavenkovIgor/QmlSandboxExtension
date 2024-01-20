@@ -7,10 +7,11 @@ export class QmlWebView {
     private qmlEngineDir: vscode.Uri;
     private disposeHandler: Function = () => { };
     private view: vscode.WebviewPanel;
+    // https://code.visualstudio.com/api/references/theme-color
     private vscodeColorKeys: string[] = [
         'editor.background',
-        'editor.foreground',
         'tab.activeBorderTop',
+        'foreground',
     ];
 
     constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {

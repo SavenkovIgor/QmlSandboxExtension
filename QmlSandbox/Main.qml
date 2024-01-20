@@ -16,15 +16,23 @@ Window {
         property string raw: ""
         property var info: JSON.parse(raw)
 
-        readonly property color defaultBackground: "#1e1e1e"
-        readonly property color defaultForeground: "#d4d4d4"
+        readonly property color defaultBackground: '#1e1e1e'
+        readonly property color defaultForeground: '#d4d4d4'
 
-        readonly property color editorBackground:   info ? info["editor.background"]   : defaultBackground
-        readonly property color editorForeground:   info ? info["editor.foreground"]   : defaultForeground
-        readonly property color tabActiveBorderTop: info ? info["tab.activeBorderTop"] : defaultForeground
+        readonly property color editorBackground:   info ? info['editor.background']   : defaultBackground
+        readonly property color tabActiveBorderTop: info ? info['tab.activeBorderTop'] : defaultForeground
+        readonly property color foreground:         info ? info['foreground']          : defaultForeground
     }
 
     visible: true
+
+    component VsCodeThemeText: Text { color: qmlSandboxWindow.theme.foreground }
+    component VsCodeH2Text: VsCodeThemeText { font.pixelSize: 20 }
+    component VsCodeH3Text: VsCodeThemeText { font.pixelSize: 14 }
+    component VsCodeBorder: Rectangle {
+        border.color: qmlSandboxWindow.theme.tabActiveBorderTop
+        border.width: 1
+    }
 
     Connections {
         target: LogCatcher
@@ -152,36 +160,24 @@ Window {
             contentItem: Column {
                 spacing: 12
 
-                Text {
+                VsCodeH2Text {
+                    width: parent.width
                     text: "Select a tab with Qml file\nto load it here"
                     horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: 28
-                    color: "#f5f5f5"
                 }
 
-                Text {
+                VsCodeH3Text {
                     text: "Regular console output is redirected\nto vscode output tab, 'Qml Sandbox' category."
                     horizontalAlignment: Text.AlignLeft
-                    font.pixelSize: 16
-                    color: "#f5f5f5"
                 }
 
-                Text {
+                VsCodeH3Text {
                     text: "Qml errors are redirected\nto vscode 'problems' tab"
                     horizontalAlignment: Text.AlignLeft
-                    font.pixelSize: 16
-                    color: "#f5f5f5"
                 }
             }
 
-            background: Rectangle {
-                color: qmlSandboxWindow.theme.editorBackground
-                border {
-                    color: qmlSandboxWindow.theme.tabActiveBorderTop
-                    width: 2
-                }
-                radius: 8
-            }
+            background: VsCodeBorder { color: qmlSandboxWindow.theme.editorBackground }
         }
     }
 }
