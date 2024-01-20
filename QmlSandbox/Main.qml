@@ -20,7 +20,7 @@ Window {
         function onNewLogMessage(logMsg) {
             logMsg.file = qmlSandboxWindow.tools.cutSandboxPrefix(logMsg.file);
             logMsg.message = qmlSandboxWindow.tools.cutSandboxPrefix(logMsg.message);
-            qmlSandboxWindow.jRpcController.sendJRpcToExtension('addLog', logMsg);
+            qmlSandboxWindow.jRpcController.sendAddLog(logMsg);
         }
     }
 
@@ -35,16 +35,28 @@ Window {
 
         function receiveJRpcFromExtension(jRpc) {
             switch (jRpc.method) {
-                case 'makeScreenshot':
+                case 'qml.makeScreenshot':
                     qmlSandboxComponentWrapper.screenshot();
                     break;
-                case 'update':
+                case 'qml.update':
                     qmlSandboxComponentWrapper.file = jRpc.params.file;
                     qmlSandboxComponentWrapper.code = jRpc.params.source;
                     break;
                 default:
                     console.error(`Unknown message type: ${jRpc.method}`);
             }
+        }
+
+        function sendAddLog(logMsg) {
+            sendJRpcToExtension('ext.addLog', logMsg);
+        }
+
+        function sendDiagnostics(diagnostics) {
+            sendJRpcToExtension('ext.setDiagnostics', diagnostics);
+        }
+
+        function sendSaveScreenshot(base64Img) {
+            sendJRpcToExtension('ext.saveScreenshot', [ base64Img ]);
         }
 
         function sendJRpcToExtension(method, params) {
@@ -90,7 +102,7 @@ Window {
             for (let i = 0; i < errors.length; ++i) {
                 diagnostics.push(qmlErrorToVsCodeError(errors[i]));
             }
-            qmlSandboxWindow.jRpcController.sendJRpcToExtension('setDiagnostics', diagnostics);
+            qmlSandboxWindow.jRpcController.sendDiagnostics(diagnostics);
         }
 
         function screenshot() {
@@ -101,7 +113,7 @@ Window {
 
             codeItem.grabToImage((result) => {
                 const base64Img = qmlSandboxWindow.tools.imgToBase64(result.image);
-                qmlSandboxWindow.jRpcController.sendJRpcToExtension('saveScreenshot', [ base64Img ]);
+                qmlSandboxWindow.jRpcController.sendSaveScreenshot(base64Img);
             });
         }
     }

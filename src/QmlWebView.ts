@@ -33,15 +33,15 @@ export class QmlWebView {
     }
 
     public onNewSetDiagnostics(handler: Function) {
-        this.jRpcController.setHandler('setDiagnostics', handler);
+        this.jRpcController.setHandler('ext.setDiagnostics', handler);
     }
 
     public onNewLog(handler: Function) {
-        this.jRpcController.setHandler('addLog', handler);
+        this.jRpcController.setHandler('ext.addLog', handler);
     }
 
     public onNewSaveScreenshot(handler: Function) {
-        this.jRpcController.setHandler('saveScreenshot', handler);
+        this.jRpcController.setHandler('ext.saveScreenshot', handler);
     }
 
     public onDispose(handler: Function) {
@@ -64,13 +64,13 @@ export class QmlWebView {
     }
 
     public makeScreenshot() {
-        this.sendJRpc('makeScreenshot', []);
+        this.sendJRpc('qml.makeScreenshot', []);
     }
 
     public setQml(filename: string, qmlSource: string) {
         // Set title of current file
         this.view.title = `${this.defaultTitle} - ${filename}`;
-        this.sendJRpc('update', { file: filename, source: qmlSource });
+        this.sendJRpc('qml.update', { file: filename, source: qmlSource });
     }
 
     // This is not exactly a 100% compatible with JRpc, because
