@@ -7,6 +7,11 @@ export class QmlWebView {
     private qmlEngineDir: vscode.Uri;
     private disposeHandler: Function = () => { };
     private view: vscode.WebviewPanel;
+    private vscodeColorKeys: string[] = [
+        'editor.background',
+        'editor.foreground',
+        'tab.activeBorderTop',
+    ];
 
     constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {
         this.qmlEngineDir = qmlEngineDir;
@@ -23,6 +28,9 @@ export class QmlWebView {
         this.view.webview.onDidReceiveMessage(jRpc => {
             this.jRpcController.receiveJRcpFromQml(jRpc);
         }, null, subscriptions);
+
+        this.jRpcController.setHandler('ext.qmlLoaded', this.onQmlLoaded.bind(this));
+        this.jRpcController.setHandler('ext.webViewThemeInfo', this.sendColorThemeToQml.bind(this));
 
         vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
 
@@ -71,6 +79,18 @@ export class QmlWebView {
         // Set title of current file
         this.view.title = `${this.defaultTitle} - ${filename}`;
         this.sendJRpc('qml.update', { file: filename, source: qmlSource });
+    }
+
+    private onQmlLoaded() {
+        this.requestWebViewTheme();
+    }
+
+    private requestWebViewTheme() {
+        this.sendJRpc('webView.getTheme', this.vscodeColorKeys);
+    }
+
+    private sendColorThemeToQml(theme: any) {
+        this.sendJRpc('qml.setTheme', JSON.stringify(theme));
     }
 
     // This is not exactly a 100% compatible with JRpc, because

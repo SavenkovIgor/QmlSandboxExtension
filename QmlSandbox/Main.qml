@@ -12,6 +12,18 @@ Window {
 
     readonly property SandboxTools tools: SandboxTools{}
 
+    property QtObject theme: QtObject {
+        property string raw: ""
+        property var info: JSON.parse(raw)
+
+        readonly property color defaultBackground: "#1e1e1e"
+        readonly property color defaultForeground: "#d4d4d4"
+
+        readonly property color editorBackground:   info ? info["editor.background"]   : defaultBackground
+        readonly property color editorForeground:   info ? info["editor.foreground"]   : defaultForeground
+        readonly property color tabActiveBorderTop: info ? info["tab.activeBorderTop"] : defaultForeground
+    }
+
     visible: true
 
     Connections {
@@ -23,6 +35,8 @@ Window {
             qmlSandboxWindow.jRpcController.sendAddLog(logMsg);
         }
     }
+
+    Component.onCompleted: qmlSandboxWindow.jRpcController.sendQmlLoaded();
 
     readonly property QtObject jRpcController: QtObject {
         readonly property Connections __privateConnection: Connections {
@@ -42,6 +56,9 @@ Window {
                     qmlSandboxComponentWrapper.file = jRpc.params.file;
                     qmlSandboxComponentWrapper.code = jRpc.params.source;
                     break;
+                case 'qml.setTheme':
+                    qmlSandboxWindow.theme.raw = jRpc.params;
+                    break;
                 default:
                     console.error(`Unknown message type: ${jRpc.method}`);
             }
@@ -57,6 +74,10 @@ Window {
 
         function sendSaveScreenshot(base64Img) {
             sendJRpcToExtension('ext.saveScreenshot', [ base64Img ]);
+        }
+
+        function sendQmlLoaded() {
+            sendJRpcToExtension('ext.qmlLoaded', {});
         }
 
         function sendJRpcToExtension(method, params) {
@@ -121,7 +142,7 @@ Window {
     Rectangle {
         anchors.fill: parent
         visible: !qmlSandboxComponentWrapper.hasItem
-        color: "#f5f5f5"
+        color: qmlSandboxWindow.theme.editorBackground
 
         Control {
             horizontalPadding: 16
@@ -154,8 +175,11 @@ Window {
             }
 
             background: Rectangle {
-                color: "#5d5b59"
-                border { color: "#35322f"; width: 2 }
+                color: qmlSandboxWindow.theme.editorBackground
+                border {
+                    color: qmlSandboxWindow.theme.tabActiveBorderTop
+                    width: 2
+                }
                 radius: 8
             }
         }
