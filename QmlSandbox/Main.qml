@@ -12,7 +12,65 @@ Window {
 
     readonly property SandboxTools tools: SandboxTools{}
 
+    property QtObject theme: QtObject {
+        property string raw: ""
+        property var info: JSON.parse(raw)
+
+        readonly property color defaultBackground: '#1e1e1e'
+        readonly property color defaultForeground: '#d4d4d4'
+
+        readonly property color textPreformatForeground: info ? info['textPreformat.foreground'] : defaultForeground
+        readonly property color editorBackground:   info ? info['editor.background']   : defaultBackground
+        readonly property color widgetBorder:       info ? info['widget.border']       : defaultForeground
+        readonly property color tabActiveBorderTop: info ? info['tab.activeBorderTop'] : defaultForeground
+        readonly property color foreground:         info ? info['foreground']          : defaultForeground
+
+        onInfoChanged: {
+            if (!info)
+                return;
+            // console.log("Theme changed:\n", JSON.stringify(info, null, 4));
+        }
+    }
+
     visible: true
+
+    component VsCodeThemeText: Text {
+        property int horizontalPadding: 0
+        property int verticalPadding: 0
+        leftPadding: horizontalPadding
+        rightPadding: horizontalPadding
+        topPadding: verticalPadding
+        bottomPadding: verticalPadding
+        color: qmlSandboxWindow.theme.textPreformatForeground
+        lineHeight: 1.45
+        wrapMode: Text.WordWrap
+        textFormat: Text.RichText
+    }
+
+    component VsCodeH2Text: VsCodeThemeText {
+        horizontalPadding: 12
+        verticalPadding: 8
+        font.pixelSize: 20
+    }
+
+    component VsCodeH3Text: VsCodeThemeText {
+        horizontalPadding: 8
+        verticalPadding: 4
+        font.pixelSize: 14
+    }
+
+    component VsCodeBorder: Rectangle { border.width: 1 }
+
+    component InfoBox: Control {
+        horizontalPadding: 16
+        verticalPadding: 12
+        property color borderColor: hovered ? qmlSandboxWindow.theme.tabActiveBorderTop : qmlSandboxWindow.theme.widgetBorder
+
+        background: VsCodeBorder {
+            border.color: parent.borderColor
+            color: qmlSandboxWindow.theme.editorBackground
+        }
+    }
 
     Connections {
         target: LogCatcher
@@ -23,6 +81,8 @@ Window {
             qmlSandboxWindow.jRpcController.sendAddLog(logMsg);
         }
     }
+
+    Component.onCompleted: qmlSandboxWindow.jRpcController.sendQmlLoaded();
 
     readonly property QtObject jRpcController: QtObject {
         readonly property Connections __privateConnection: Connections {
@@ -42,6 +102,9 @@ Window {
                     qmlSandboxComponentWrapper.file = jRpc.params.file;
                     qmlSandboxComponentWrapper.code = jRpc.params.source;
                     break;
+                case 'qml.setTheme':
+                    qmlSandboxWindow.theme.raw = jRpc.params;
+                    break;
                 default:
                     console.error(`Unknown message type: ${jRpc.method}`);
             }
@@ -57,6 +120,10 @@ Window {
 
         function sendSaveScreenshot(base64Img) {
             sendJRpcToExtension('ext.saveScreenshot', [ base64Img ]);
+        }
+
+        function sendQmlLoaded() {
+            sendJRpcToExtension('ext.qmlLoaded', {});
         }
 
         function sendJRpcToExtension(method, params) {
@@ -119,44 +186,64 @@ Window {
     }
 
     Rectangle {
+        id: qmlSandboxInfo
+
+        readonly property int columnWidth: 420
+
         anchors.fill: parent
         visible: !qmlSandboxComponentWrapper.hasItem
-        color: "#f5f5f5"
+        color: qmlSandboxWindow.theme.editorBackground
 
-        Control {
-            horizontalPadding: 16
-            verticalPadding: 8
+        Column {
             anchors.centerIn: parent
+            spacing: 16
 
-            contentItem: Column {
-                spacing: 12
+            InfoBox {
+                contentItem: Column {
+                    width: qmlSandboxInfo.columnWidth
+                    spacing: 0
 
-                Text {
-                    text: "Select a tab with Qml file\nto load it here"
-                    horizontalAlignment: Text.AlignHCenter
-                    font.pixelSize: 28
-                    color: "#f5f5f5"
-                }
+                    VsCodeH2Text {
+                        width: parent.width
+                        text: "Select a tab containing a Qml file\nto load it here"
+                        horizontalAlignment: Text.AlignHCenter
+                    }
 
-                Text {
-                    text: "Regular console output is redirected\nto vscode output tab, 'Qml Sandbox' category."
-                    horizontalAlignment: Text.AlignLeft
-                    font.pixelSize: 16
-                    color: "#f5f5f5"
-                }
+                    VsCodeH3Text {
+                        width: parent.width
+                        text: "• Your console output is sent to the <b>OUTPUT</b> tab at bottom panel (Qml Sandbox category)"
+                        horizontalAlignment: Text.AlignLeft
+                    }
 
-                Text {
-                    text: "Qml errors are redirected\nto vscode 'problems' tab"
-                    horizontalAlignment: Text.AlignLeft
-                    font.pixelSize: 16
-                    color: "#f5f5f5"
+                    VsCodeH3Text {
+                        width: parent.width
+                        text: "• Qml errors are sent to the <b>PROBLEMS</b> tab at bottom panel"
+                        horizontalAlignment: Text.AlignLeft
+                    }
                 }
             }
 
-            background: Rectangle {
-                color: "#5d5b59"
-                border { color: "#35322f"; width: 2 }
-                radius: 8
+            InfoBox {
+                contentItem: Column {
+                    width: qmlSandboxInfo.columnWidth
+
+                    VsCodeH2Text {
+                        width: parent.width
+                        text: "! Limitations !"
+                    }
+
+                    VsCodeH3Text {
+                        width: parent.width
+                        text: "• No support of more than one file (at least for now)"
+                        horizontalAlignment: Text.AlignLeft
+                    }
+
+                    VsCodeH3Text {
+                        width: parent.width
+                        text: "• No support for local file access"
+                        horizontalAlignment: Text.AlignLeft
+                    }
+                }
             }
         }
     }
