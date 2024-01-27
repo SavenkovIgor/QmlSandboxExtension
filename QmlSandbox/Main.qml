@@ -19,11 +19,11 @@ Window {
         readonly property color defaultBackground: '#1e1e1e'
         readonly property color defaultForeground: '#d4d4d4'
 
-        readonly property color textPreformatForeground: info ? info['textPreformat.foreground'] : defaultForeground
-        readonly property color editorBackground:   info ? info['editor.background']   : defaultBackground
-        readonly property color widgetBorder:       info ? info['widget.border']       : defaultForeground
-        readonly property color tabActiveBorderTop: info ? info['tab.activeBorderTop'] : defaultForeground
-        readonly property color foreground:         info ? info['foreground']          : defaultForeground
+        readonly property color textPreformatForeground: info?.['textPreformat.foreground'] ?? defaultForeground
+        readonly property color editorBackground:        info?.['editor.background']        ?? defaultBackground
+        readonly property color widgetBorder:            info?.['widget.border']            ?? defaultForeground
+        readonly property color tabActiveBorderTop:      info?.['tab.activeBorderTop']      ?? defaultForeground
+        readonly property color foreground:              info?.['foreground']               ?? defaultForeground
 
         onInfoChanged: {
             if (!info)
