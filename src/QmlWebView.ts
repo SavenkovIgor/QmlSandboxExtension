@@ -10,8 +10,10 @@ export class QmlWebView {
     // https://code.visualstudio.com/api/references/theme-color
     private vscodeColorKeys: string[] = [
         'editor.background',
+        'widget.border',
         'tab.activeBorderTop',
         'foreground',
+        'textPreformat.foreground',
     ];
 
     constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {
