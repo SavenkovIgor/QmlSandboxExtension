@@ -33,7 +33,6 @@ Window {
     }
 
     visible: true
-    color: qmlSandboxWindow.theme.editorBackground
 
     component VsCodeThemeText: Text {
         property int horizontalPadding: 0
