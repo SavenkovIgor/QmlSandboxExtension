@@ -11,10 +11,12 @@ let qmlWebView: QmlWebView | null = null;
 let outputChannel: vscode.OutputChannel | null = null;
 let qmlStatusBar: QmlStatusBar | null = null;
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
+let exampleDir: vscode.Uri | null = null;
 
 export function activate(context: vscode.ExtensionContext) {
 
     const qmlEngineDir = vscode.Uri.joinPath(context.extensionUri, 'wasmQmlEngine');
+    exampleDir = vscode.Uri.joinPath(context.extensionUri, 'example');
 
     qmlStatusBar = new QmlStatusBar(extPrefix, context);
     outputChannel = vscode.window.createOutputChannel(defaultTitle);
@@ -32,6 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
         qmlWebView.onNewSetDiagnostics(setDiagnostics);
         qmlWebView.onNewLog(addLogOrDiagnostic);
         qmlWebView.onNewSaveScreenshot(saveScreenshot);
+        qmlWebView.onOpenExample(openExample);
 
         qmlWebView.onDispose(() => {
             qmlWebView = null;
@@ -144,6 +147,20 @@ function saveScreenshot(params: any) {
         }
         vscode.workspace.fs.writeFile(fileUri, Buffer.from(pngData, 'base64')).then(() => {
             vscode.window.showInformationMessage(`Screenshot saved to ${fileUri.fsPath}`);
+        });
+    });
+}
+
+function openExample(filename: string) {
+    if (exampleDir === null) {
+        return;
+    }
+
+    // We read example file and open it in new editor
+    const examplePath = vscode.Uri.joinPath(exampleDir, filename);
+    vscode.workspace.fs.readFile(examplePath).then(fileData => {
+        vscode.workspace.openTextDocument({ content: fileData.toString(), language: 'qml' }).then(document => {
+            vscode.window.showTextDocument(document, 1, false);
         });
     });
 }

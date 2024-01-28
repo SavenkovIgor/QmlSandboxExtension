@@ -19,56 +19,81 @@ Window {
         readonly property color defaultBackground: '#1e1e1e'
         readonly property color defaultForeground: '#d4d4d4'
 
-        readonly property color textPreformatForeground: info?.['textPreformat.foreground'] ?? defaultForeground
-        readonly property color editorBackground:        info?.['editor.background']        ?? defaultBackground
-        readonly property color widgetBorder:            info?.['widget.border']            ?? defaultForeground
-        readonly property color tabActiveBorderTop:      info?.['tab.activeBorderTop']      ?? defaultForeground
-        readonly property color foreground:              info?.['foreground']               ?? defaultForeground
+        readonly property color editorBackground:   info?.['editor.background']   ?? defaultBackground
+        readonly property color focusBorder:        info?.['focusBorder']         ?? defaultForeground
+        readonly property color foreground:         info?.['foreground']          ?? defaultForeground
+        readonly property color textLinkForeground: info?.['textLink.foreground'] ?? defaultForeground
+        readonly property color inputBackground:    info?.['input.background']    ?? defaultBackground
 
-        onInfoChanged: {
-            if (!info)
-                return;
-            // console.log("Theme changed:\n", JSON.stringify(info, null, 4));
+        readonly property QtObject button: QtObject {
+            readonly property alias parent: qmlSandboxWindow.theme
+            readonly property var info: qmlSandboxWindow.theme.info
+
+            readonly property color background:      info?.['button.background']      ?? parent.defaultBackground
+            readonly property color foreground:      info?.['button.foreground']      ?? parent.defaultForeground
+            readonly property color hoverBackground: info?.['button.hoverBackground'] ?? parent.defaultForeground
         }
     }
 
     visible: true
 
-    component VsCodeThemeText: Text {
+    component VsCodeText: Text {
         property int horizontalPadding: 0
         property int verticalPadding: 0
         leftPadding: horizontalPadding
         rightPadding: horizontalPadding
         topPadding: verticalPadding
         bottomPadding: verticalPadding
-        color: qmlSandboxWindow.theme.textPreformatForeground
+        color: qmlSandboxWindow.theme.foreground
+        linkColor: qmlSandboxWindow.theme.textLinkForeground
         lineHeight: 1.45
         wrapMode: Text.WordWrap
         textFormat: Text.RichText
+
+        function wrapLink(href, text) {
+            const color = linkColor;
+            return `<a href='${href}' style='color: ${color};'>${text}</a>`;
+        }
     }
 
-    component VsCodeH2Text: VsCodeThemeText {
+    component VsCodeH2Text: VsCodeText {
         horizontalPadding: 12
         verticalPadding: 8
         font.pixelSize: 20
     }
 
-    component VsCodeH3Text: VsCodeThemeText {
+    component VsCodeH3Text: VsCodeText {
         horizontalPadding: 8
         verticalPadding: 4
         font.pixelSize: 14
     }
 
-    component VsCodeBorder: Rectangle { border.width: 1 }
-
     component InfoBox: Control {
         horizontalPadding: 16
         verticalPadding: 12
-        property color borderColor: hovered ? qmlSandboxWindow.theme.tabActiveBorderTop : qmlSandboxWindow.theme.widgetBorder
+        property color borderColor: hovered ? qmlSandboxWindow.theme.focusBorder : "transparent"
 
-        background: VsCodeBorder {
-            border.color: parent.borderColor
-            color: qmlSandboxWindow.theme.editorBackground
+        background: Rectangle {
+            border { color: parent.borderColor; width: 1 }
+            color: qmlSandboxWindow.theme.inputBackground
+        }
+    }
+
+    component VsCodeButton: AbstractButton {
+        readonly property QtObject theme: qmlSandboxWindow.theme.button
+        verticalPadding: 4
+        horizontalPadding: 12
+
+        contentItem: VsCodeH3Text {
+            text: `<b>${parent.text}</b>`
+            color: parent.theme.foreground
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        background: Rectangle {
+            color: parent.hovered ? parent.theme.hoverBackground : parent.theme.background
+            radius: 4
         }
     }
 
@@ -124,6 +149,10 @@ Window {
 
         function sendQmlLoaded() {
             sendJRpcToExtension('ext.qmlLoaded', {});
+        }
+
+        function sendOpenExample(filename) {
+            sendJRpcToExtension('ext.openExample', filename);
         }
 
         function sendJRpcToExtension(method, params) {
@@ -185,6 +214,11 @@ Window {
         }
     }
 
+    component ExampleLink: VsCodeH3Text {
+        width: parent.width
+        onLinkActivated: (link) => { qmlSandboxWindow.jRpcController.sendOpenExample(link); }
+    }
+
     Rectangle {
         id: qmlSandboxInfo
 
@@ -199,6 +233,7 @@ Window {
             spacing: 16
 
             InfoBox {
+                id: qmlSandboxMainInfoBox
                 contentItem: Column {
                     width: qmlSandboxInfo.columnWidth
                     spacing: 0
@@ -220,10 +255,22 @@ Window {
                         text: "• Qml errors are sent to the <b>PROBLEMS</b> tab at bottom panel"
                         horizontalAlignment: Text.AlignLeft
                     }
+
+                    VsCodeButton {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 16
+                        text: "Qml examples"
+                        onClicked: {
+                            qmlSandboxMainInfoBox.visible = false;
+                            qmlSandboxLimitationsInfoBox.visible = false;
+                            qmlSandboxExamplesInfoBox.visible = true;
+                        }
+                    }
                 }
             }
 
             InfoBox {
+                id: qmlSandboxLimitationsInfoBox
                 contentItem: Column {
                     width: qmlSandboxInfo.columnWidth
 
@@ -243,6 +290,25 @@ Window {
                         text: "• No support for local file access"
                         horizontalAlignment: Text.AlignLeft
                     }
+                }
+            }
+
+            InfoBox {
+                id: qmlSandboxExamplesInfoBox
+                visible: false
+
+                contentItem: Column {
+                    width: qmlSandboxInfo.columnWidth
+                    spacing: 8
+
+                    VsCodeH2Text {
+                        width: parent.width
+                        text: "Qml examples (click to open)"
+                    }
+
+                    ExampleLink { text: wrapLink('Circles.qml', 'Circles') + ' - circles with randomized animation' }
+                    ExampleLink { text: wrapLink('CubicWave.qml', 'CubicWave') + ' - simple animation with rotating rectangles' }
+                    ExampleLink { text: wrapLink('Logo.qml', 'Logo') + ' - this extension logo' }
                 }
             }
         }
