@@ -1,5 +1,18 @@
 # Changelog
 
+## v7.0.1
+
+### Changed
+
+* Various cleanup and refactoring
+* Screenshots are try to be saved with name of the current qml file ([#102](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/102))
+* Remove redundant warning prefix ([#104](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/104))
+
+### Added
+
+* Now this extension has info about current vscode theme and use it ([#107](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/107))
+* Added 3 qml examples  ([#110](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/110))
+
 ## v6.0.1
 
 ### Changed
