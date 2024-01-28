@@ -14,6 +14,7 @@ export class QmlWebView {
         'tab.activeBorderTop',
         'foreground',
         'textPreformat.foreground',
+        'textLink.foreground',
 
         'button.background',
         'button.foreground',
@@ -62,6 +63,10 @@ export class QmlWebView {
 
     public onNewSaveScreenshot(handler: Function) {
         this.jRpcController.setHandler('ext.saveScreenshot', handler);
+    }
+
+    public onOpenExample(handler: Function) {
+        this.jRpcController.setHandler('ext.openExample', handler);
     }
 
     public onDispose(handler: Function) {

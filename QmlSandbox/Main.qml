@@ -24,6 +24,7 @@ Window {
         readonly property color widgetBorder:            info?.['widget.border']            ?? defaultForeground
         readonly property color tabActiveBorderTop:      info?.['tab.activeBorderTop']      ?? defaultForeground
         readonly property color foreground:              info?.['foreground']               ?? defaultForeground
+        readonly property color textLinkForeground:      info?.['textLink.foreground']      ?? defaultForeground
 
         readonly property QtObject button: QtObject {
             readonly property alias parent: qmlSandboxWindow.theme
@@ -53,9 +54,15 @@ Window {
         topPadding: verticalPadding
         bottomPadding: verticalPadding
         color: qmlSandboxWindow.theme.textPreformatForeground
+        linkColor: qmlSandboxWindow.theme.textLinkForeground
         lineHeight: 1.45
         wrapMode: Text.WordWrap
         textFormat: Text.RichText
+
+        function wrapLink(href, text) {
+            const color = linkColor;
+            return `<a href='${href}' style='color: ${color};'>${text}</a>`;
+        }
     }
 
     component VsCodeH2Text: VsCodeText {
@@ -156,6 +163,10 @@ Window {
             sendJRpcToExtension('ext.qmlLoaded', {});
         }
 
+        function sendOpenExample(filename) {
+            sendJRpcToExtension('ext.openExample', filename);
+        }
+
         function sendJRpcToExtension(method, params) {
             const cmd = { method: method, params: params };
             EmscriptenListener.sendJRpcToExtension(cmd);
@@ -215,6 +226,11 @@ Window {
         }
     }
 
+    component ExampleLink: VsCodeH3Text {
+        width: parent.width
+        onLinkActivated: (link) => { qmlSandboxWindow.jRpcController.sendOpenExample(link); }
+    }
+
     Rectangle {
         id: qmlSandboxInfo
 
@@ -229,6 +245,7 @@ Window {
             spacing: 16
 
             InfoBox {
+                id: qmlSandboxMainInfoBox
                 contentItem: Column {
                     width: qmlSandboxInfo.columnWidth
                     spacing: 0
@@ -255,11 +272,17 @@ Window {
                         anchors.right: parent.right
                         anchors.rightMargin: 16
                         text: "Qml examples"
+                        onClicked: {
+                            qmlSandboxMainInfoBox.visible = false;
+                            qmlSandboxLimitationsInfoBox.visible = false;
+                            qmlSandboxExamplesInfoBox.visible = true;
+                        }
                     }
                 }
             }
 
             InfoBox {
+                id: qmlSandboxLimitationsInfoBox
                 contentItem: Column {
                     width: qmlSandboxInfo.columnWidth
 
@@ -279,6 +302,25 @@ Window {
                         text: "• No support for local file access"
                         horizontalAlignment: Text.AlignLeft
                     }
+                }
+            }
+
+            InfoBox {
+                id: qmlSandboxExamplesInfoBox
+                visible: false
+
+                contentItem: Column {
+                    width: qmlSandboxInfo.columnWidth
+                    spacing: 8
+
+                    VsCodeH2Text {
+                        width: parent.width
+                        text: "Qml examples (click to open)"
+                    }
+
+                    ExampleLink { text: wrapLink('Circles.qml', 'Circles') + ' - circles with randomized animation' }
+                    ExampleLink { text: wrapLink('CubicWave.qml', 'CubicWave') + ' - simple animation with rotating rectangles' }
+                    ExampleLink { text: wrapLink('Logo.qml', 'Logo') + ' - this extension logo' }
                 }
             }
         }
