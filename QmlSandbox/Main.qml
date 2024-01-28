@@ -25,16 +25,27 @@ Window {
         readonly property color tabActiveBorderTop:      info?.['tab.activeBorderTop']      ?? defaultForeground
         readonly property color foreground:              info?.['foreground']               ?? defaultForeground
 
-        onInfoChanged: {
-            if (!info)
-                return;
-            // console.log("Theme changed:\n", JSON.stringify(info, null, 4));
+        readonly property QtObject button: QtObject {
+            readonly property alias parent: qmlSandboxWindow.theme
+            readonly property var info: qmlSandboxWindow.theme.info
+
+            readonly property color defaultBackground: parent.defaultBackground
+            readonly property color defaultForeground: parent.defaultForeground
+
+            readonly property color background:               info?.['button.background']               ?? defaultBackground
+            readonly property color foreground:               info?.['button.foreground']               ?? defaultForeground
+            readonly property color border:                   info?.['button.border']                   ?? defaultForeground
+            readonly property color separator:                info?.['button.separator']                ?? defaultForeground
+            readonly property color hoverBackground:          info?.['button.hoverBackground']          ?? defaultForeground
+            readonly property color secondaryForeground:      info?.['button.secondaryForeground']      ?? defaultForeground
+            readonly property color secondaryBackground:      info?.['button.secondaryBackground']      ?? defaultForeground
+            readonly property color secondaryHoverBackground: info?.['button.secondaryHoverBackground'] ?? defaultForeground
         }
     }
 
     visible: true
 
-    component VsCodeThemeText: Text {
+    component VsCodeText: Text {
         property int horizontalPadding: 0
         property int verticalPadding: 0
         leftPadding: horizontalPadding
@@ -47,13 +58,13 @@ Window {
         textFormat: Text.RichText
     }
 
-    component VsCodeH2Text: VsCodeThemeText {
+    component VsCodeH2Text: VsCodeText {
         horizontalPadding: 12
         verticalPadding: 8
         font.pixelSize: 20
     }
 
-    component VsCodeH3Text: VsCodeThemeText {
+    component VsCodeH3Text: VsCodeText {
         horizontalPadding: 8
         verticalPadding: 4
         font.pixelSize: 14
@@ -69,6 +80,25 @@ Window {
         background: VsCodeBorder {
             border.color: parent.borderColor
             color: qmlSandboxWindow.theme.editorBackground
+        }
+    }
+
+    component VsCodeButton: AbstractButton {
+        readonly property QtObject theme: qmlSandboxWindow.theme.button
+        verticalPadding: 4
+        horizontalPadding: 12
+
+        contentItem: VsCodeH3Text {
+            text: `<b>${parent.text}</b>`
+            color: parent.theme.foreground
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
+
+        background: Rectangle {
+            border.color: parent.theme.border
+            color: parent.hovered ? parent.theme.hoverBackground : parent.theme.background
+            radius: 4
         }
     }
 
@@ -219,6 +249,12 @@ Window {
                         width: parent.width
                         text: "• Qml errors are sent to the <b>PROBLEMS</b> tab at bottom panel"
                         horizontalAlignment: Text.AlignLeft
+                    }
+
+                    VsCodeButton {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 16
+                        text: "Qml examples"
                     }
                 }
             }

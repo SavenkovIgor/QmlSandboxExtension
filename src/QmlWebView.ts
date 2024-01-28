@@ -14,6 +14,15 @@ export class QmlWebView {
         'tab.activeBorderTop',
         'foreground',
         'textPreformat.foreground',
+
+        'button.background',
+        'button.foreground',
+        'button.border',
+        'button.separator',
+        'button.hoverBackground',
+        'button.secondaryForeground',
+        'button.secondaryBackground',
+        'button.secondaryHoverBackground',
     ];
 
     constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {
