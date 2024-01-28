@@ -19,28 +19,19 @@ Window {
         readonly property color defaultBackground: '#1e1e1e'
         readonly property color defaultForeground: '#d4d4d4'
 
-        readonly property color textPreformatForeground: info?.['textPreformat.foreground'] ?? defaultForeground
-        readonly property color editorBackground:        info?.['editor.background']        ?? defaultBackground
-        readonly property color widgetBorder:            info?.['widget.border']            ?? defaultForeground
-        readonly property color tabActiveBorderTop:      info?.['tab.activeBorderTop']      ?? defaultForeground
-        readonly property color foreground:              info?.['foreground']               ?? defaultForeground
-        readonly property color textLinkForeground:      info?.['textLink.foreground']      ?? defaultForeground
+        readonly property color editorBackground:   info?.['editor.background']   ?? defaultBackground
+        readonly property color focusBorder:        info?.['focusBorder']         ?? defaultForeground
+        readonly property color foreground:         info?.['foreground']          ?? defaultForeground
+        readonly property color textLinkForeground: info?.['textLink.foreground'] ?? defaultForeground
+        readonly property color inputBackground:    info?.['input.background']    ?? defaultBackground
 
         readonly property QtObject button: QtObject {
             readonly property alias parent: qmlSandboxWindow.theme
             readonly property var info: qmlSandboxWindow.theme.info
 
-            readonly property color defaultBackground: parent.defaultBackground
-            readonly property color defaultForeground: parent.defaultForeground
-
-            readonly property color background:               info?.['button.background']               ?? defaultBackground
-            readonly property color foreground:               info?.['button.foreground']               ?? defaultForeground
-            readonly property color border:                   info?.['button.border']                   ?? defaultForeground
-            readonly property color separator:                info?.['button.separator']                ?? defaultForeground
-            readonly property color hoverBackground:          info?.['button.hoverBackground']          ?? defaultForeground
-            readonly property color secondaryForeground:      info?.['button.secondaryForeground']      ?? defaultForeground
-            readonly property color secondaryBackground:      info?.['button.secondaryBackground']      ?? defaultForeground
-            readonly property color secondaryHoverBackground: info?.['button.secondaryHoverBackground'] ?? defaultForeground
+            readonly property color background:      info?.['button.background']      ?? parent.defaultBackground
+            readonly property color foreground:      info?.['button.foreground']      ?? parent.defaultForeground
+            readonly property color hoverBackground: info?.['button.hoverBackground'] ?? parent.defaultForeground
         }
     }
 
@@ -53,7 +44,7 @@ Window {
         rightPadding: horizontalPadding
         topPadding: verticalPadding
         bottomPadding: verticalPadding
-        color: qmlSandboxWindow.theme.textPreformatForeground
+        color: qmlSandboxWindow.theme.foreground
         linkColor: qmlSandboxWindow.theme.textLinkForeground
         lineHeight: 1.45
         wrapMode: Text.WordWrap
@@ -77,16 +68,14 @@ Window {
         font.pixelSize: 14
     }
 
-    component VsCodeBorder: Rectangle { border.width: 1 }
-
     component InfoBox: Control {
         horizontalPadding: 16
         verticalPadding: 12
-        property color borderColor: hovered ? qmlSandboxWindow.theme.tabActiveBorderTop : qmlSandboxWindow.theme.widgetBorder
+        property color borderColor: hovered ? qmlSandboxWindow.theme.focusBorder : "transparent"
 
-        background: VsCodeBorder {
-            border.color: parent.borderColor
-            color: qmlSandboxWindow.theme.editorBackground
+        background: Rectangle {
+            border { color: parent.borderColor; width: 1 }
+            color: qmlSandboxWindow.theme.inputBackground
         }
     }
 
@@ -103,7 +92,6 @@ Window {
         }
 
         background: Rectangle {
-            border.color: parent.theme.border
             color: parent.hovered ? parent.theme.hoverBackground : parent.theme.background
             radius: 4
         }

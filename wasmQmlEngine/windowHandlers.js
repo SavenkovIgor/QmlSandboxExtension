@@ -29,6 +29,7 @@ function normalizeColor(color) {
         const left = color.indexOf('(');
         const right = color.indexOf(')');
         if (left === -1 || right === -1 || right < left) {
+            console.error(`Invalid color: ${color}`);
             return errorColor;
         }
         const rgb = color.substring(left + 1, right);
@@ -54,6 +55,7 @@ function normalizeColor(color) {
             return ret;
         }
     }
+    console.error(`Invalid color: ${color}`);
     return errorColor;
 }
 
