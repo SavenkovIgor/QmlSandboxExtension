@@ -27,7 +27,7 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Install EmSdk
-      uses: mymindstorm/setup-emsdk@v12
+      uses: mymindstorm/setup-emsdk@v14
       with:
         version: ${{ env.WASM_VERSION }}
         actions-cache-folder: 'lib/emsdk-cache'
