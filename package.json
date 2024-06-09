@@ -49,7 +49,7 @@
         {
           "command": "QmlSandboxExtension.screenshotQml",
           "group": "navigation",
-          "when": "isQmlSandboxOpen"
+          "when": "isQmlSandboxOpen && isQmlSandboxActive"
         }
       ]
     },

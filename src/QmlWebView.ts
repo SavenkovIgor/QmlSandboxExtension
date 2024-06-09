@@ -35,6 +35,11 @@ export class QmlWebView {
             this.jRpcController.receiveJRcpFromQml(jRpc);
         }, null, subscriptions);
 
+        this.view.onDidChangeViewState(event => {
+            const isActive = event.webviewPanel.active;
+            vscode.commands.executeCommand('setContext', 'isQmlSandboxActive', isActive);
+        });
+
         this.jRpcController.setHandler('ext.qmlLoaded', this.onQmlLoaded.bind(this));
         this.jRpcController.setHandler('ext.webViewThemeInfo', this.sendColorThemeToQml.bind(this));
 
