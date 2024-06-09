@@ -42,14 +42,16 @@
           "when": "isQmlSandboxOpen && isQmlLiveUpdateEnabled == false && editorLangId == qml"
         },
         {
-          "command": "QmlSandboxExtension.openQmlSandbox",
-          "group": "navigation",
-          "when": "editorLangId == qml"
-        },
-        {
           "command": "QmlSandboxExtension.screenshotQml",
           "group": "navigation",
           "when": "isQmlSandboxOpen && isQmlSandboxActive"
+        }
+      ],
+      "editor/title/run": [
+        {
+          "command": "QmlSandboxExtension.openQmlSandbox",
+          "group": "navigation",
+          "when": "editorLangId == qml"
         }
       ]
     },
