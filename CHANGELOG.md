@@ -5,6 +5,7 @@
 ### Fixed
 
 * Screenshot button now visible only on qml webView tab - not on other tabs
+* On qml live update disabled the update button is now visible only on qml tabs
 
 ### Changed
 
