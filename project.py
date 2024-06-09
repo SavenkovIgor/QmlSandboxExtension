@@ -28,7 +28,7 @@ class Project:
     def __init__(self) -> None:
         self.root             = Path(__file__).parent
         self.name             = self.root.name
-        self.venv_root        = self.root / 'env/python'
+        self.venv_root        = self.root / '.venv'
         self.qml_sandbox_root = self.root / 'QmlSandbox'
         self.wasm_engine_root = self.root / 'wasmQmlEngine'
         self.preset           = 'wasm_release'

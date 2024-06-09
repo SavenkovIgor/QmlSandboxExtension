@@ -70,7 +70,7 @@ QmlSandbox/build/
 aqtinstall.log
 
 # Env section
-env/python
+.venv
 
 # Side libs section
 lib/Qt
