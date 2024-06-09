@@ -21,7 +21,7 @@
       {
         "command": "QmlSandboxExtension.openQmlSandbox",
         "title": "Open Qml Sandbox",
-        "icon": "$(eye)"
+        "icon": "$(run)"
       },
       {
         "command": "QmlSandboxExtension.screenshotQml",
