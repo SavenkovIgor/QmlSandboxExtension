@@ -46,7 +46,7 @@ QML sandbox tab update will appear at the top of code editor.
 
 - Cmake/Ninja
 - aqtinstall (optional script for Qt installation)
-- Qt 6.6.0
+- Qt 6.6.3
 - Emscripten 3.1.37
 
 ## Contributing

@@ -8,7 +8,7 @@ import subprocess
 from pathlib import Path
 from typing import Dict, Optional
 
-qt_version = '6.6.0'
+qt_version = '6.6.3'
 emsdk_version = '3.1.37'
 
 
