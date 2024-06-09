@@ -2,6 +2,10 @@
 
 ## v8.0.1
 
+### Fixed
+
+* Screenshot button now visible only on qml webView tab - not on other tabs
+
 ### Changed
 
 * Replace eye icon with run icon at file title
