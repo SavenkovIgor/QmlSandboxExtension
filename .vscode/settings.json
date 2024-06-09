@@ -9,7 +9,20 @@
     // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
     "typescript.tsc.autoDetect": "off",
     "cSpell.words": [
+        "aqtinstall",
+        "bbenoist",
+        "outputdir",
+        "qtbase",
+        "qtdeclarative",
+        "qtimageformats",
         "qtloader",
-        "qtlogo"
+        "qtlogo",
+        "qtquick",
+        "qtquicktimeline",
+        "qtshadertools",
+        "qtsvg",
+        "qttools",
+        "qttranslations",
+        "singlethread"
     ]
 }
