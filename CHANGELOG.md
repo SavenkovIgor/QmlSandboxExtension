@@ -4,6 +4,7 @@
 
 ### Changed
 
+* Replace eye icon with run icon at file title
 * Switch to Qt 6.6.3
 * Tool version update
 
