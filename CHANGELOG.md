@@ -1,5 +1,12 @@
 # Changelog
 
+## v8.0.1
+
+### Changed
+
+* Switch to Qt 6.6.3
+* Tool version update
+
 ## v7.0.1
 
 ### Changed

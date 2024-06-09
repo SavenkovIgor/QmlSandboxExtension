@@ -10,7 +10,7 @@ on:
 
 env:
   QT_ROOT: ${{ github.workspace }}/lib/Qt
-  QT_VERSION: 6.6.0
+  QT_VERSION: 6.6.3
   WASM_VERSION: 3.1.37
   AQT_VERSION: ==3.1.6
   QT_MODULES: 'qtimageformats qt5compat qtshadertools qtquicktimeline qtquick3d'
@@ -88,4 +88,3 @@ jobs:
       uses: lannonbr/vsce-action@3.0.0
       with:
         args: publish -p ${{ secrets.VSCE_TOKEN }}
-
