@@ -39,7 +39,7 @@
         {
           "command": "QmlSandboxExtension.updateWebView",
           "group": "navigation",
-          "when": "QmlSandbox.isOpen && isQmlLiveUpdateEnabled == false && editorLangId == qml"
+          "when": "QmlSandbox.isOpen && QmlSandbox.isLiveUpdate == false && editorLangId == qml"
         },
         {
           "command": "QmlSandboxExtension.screenshotQml",
