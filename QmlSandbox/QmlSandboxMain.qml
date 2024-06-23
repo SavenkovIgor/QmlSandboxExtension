@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import QtQuick.Templates as T
 import QtQuick3D
+import Qt5Compat.GraphicalEffects
 
 Window {
     id: qmlSandboxWindow
@@ -307,6 +308,7 @@ Window {
                     ExampleLink { text: wrapLink('Circles.qml', 'Circles') + ' - circles with randomized animation' }
                     ExampleLink { text: wrapLink('CubicWave.qml', 'CubicWave') + ' - simple animation with rotating rectangles' }
                     ExampleLink { text: wrapLink('Logo.qml', 'Logo') + ' - this extension logo' }
+                    ExampleLink { text: wrapLink('CompatibilityEffect.qml', 'FastBlur') + ' - fast blur effect from Qt5Compat module' }
                 }
             }
         }
