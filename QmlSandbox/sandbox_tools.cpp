@@ -18,6 +18,6 @@ QString SandboxTools::imgToBase64(QImage img)
 
 QString SandboxTools::cutSandboxPrefix(QString string)
 {
-    const QString wrongFileNamePrefix = "qrc:/qt/qml/QtTemplateModule/";
+    const QString wrongFileNamePrefix = "qrc:/qt/qml/QmlSandboxModule/";
     return string.replace(wrongFileNamePrefix, "");
 }
