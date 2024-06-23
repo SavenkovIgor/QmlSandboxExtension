@@ -17,13 +17,15 @@ find_package (Qt6 REQUIRED COMPONENTS Quick Quick3D)
 qt_standard_project_setup(REQUIRES 6.6)
 
 qt_add_executable (QmlSandbox
-    main.cpp
-    emscripten_listener.h
-    emscripten_listener.cpp
-    log_catcher.h
+    emscripten_api.cpp
+    emscripten_api.h
     log_catcher.cpp
-    sandbox_tools.h
-    sandbox_tools.cpp)
+    log_catcher.h
+    main.cpp
+    qml_emscripten_api.cpp
+    qml_emscripten_api.h
+    sandbox_tools.cpp
+    sandbox_tools.h)
 
 set_target_properties (QmlSandbox
     PROPERTIES

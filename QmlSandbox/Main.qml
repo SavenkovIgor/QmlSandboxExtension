@@ -111,7 +111,7 @@ Window {
 
     readonly property QtObject jRpcController: QtObject {
         readonly property Connections __privateConnection: Connections {
-            target: EmscriptenListener
+            target: QmlEmscriptenApi
 
             function onReceiveJRpcFromExtension(jRpc) {
                 qmlSandboxWindow.jRpcController.receiveJRpcFromExtension(jRpc);
@@ -157,7 +157,7 @@ Window {
 
         function sendJRpcToExtension(method, params) {
             const cmd = { method: method, params: params };
-            EmscriptenListener.sendJRpcToExtension(cmd);
+            QmlEmscriptenApi.sendJRpcToExtension(cmd);
         }
     }
 
