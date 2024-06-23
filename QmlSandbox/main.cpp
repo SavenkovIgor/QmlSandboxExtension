@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
-    engine.loadFromModule("QtTemplateModule", "Main");
+    engine.loadFromModule("QmlSandboxModule", "Main");
 
     return app.exec();
 }

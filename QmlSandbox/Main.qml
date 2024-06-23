@@ -5,8 +5,6 @@ import QtQuick.Window
 import QtQuick.Templates as T
 import QtQuick3D
 
-import QtTemplateModule
-
 Window {
     id: qmlSandboxWindow
 

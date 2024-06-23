@@ -34,7 +34,7 @@ set_target_properties (QmlSandbox
         CXX_STANDARD_REQUIRED ON)
 
 qt_add_qml_module (QmlSandbox
-    URI QtTemplateModule
+    URI QmlSandboxModule
     QML_FILES Main.qml)
 
 target_link_libraries (QmlSandbox PRIVATE Qt::Quick Qt::Quick3D)
