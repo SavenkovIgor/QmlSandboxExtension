@@ -6,14 +6,13 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Dict, Optional
 
 qt_version = '6.6.3'
 emsdk_version = '3.1.37'
 
 
-def run(command: str, env: Optional[Dict[str, str]] = None) -> None:
-    if subprocess.call(command, shell=True, executable='/bin/bash', env=env) != 0:
+def run(command: str) -> None:
+    if subprocess.call(command, shell=True, executable='/bin/bash') != 0:
         exit(1)
 
 
@@ -37,11 +36,9 @@ class Project:
         self.qt_root    = self.lib / 'Qt'
         self.emsdk_root = self.lib / 'emsdk'
 
-    def prepare_env(self) -> Dict[str, str]:
-        env = os.environ.copy()
-        env['QT_ROOT'] = str(self.qt_root)
-        env['QT_VERSION'] = qt_version
-        return env
+        # Prepare environment
+        os.environ.setdefault('QT_ROOT', str(self.qt_root))
+        os.environ.setdefault('QT_VERSION', qt_version)
 
     def install_qt(self) -> None:
         print(f'---INSTALL {self.name}---')
@@ -73,11 +70,10 @@ class Project:
 
     def build_qml(self) -> None:
         print(f'---Build of qml project---')
-        env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
         emsdk_prefix = f'source {self.emsdk_root}/emsdk_env.sh && '
-        run(f'{emsdk_prefix} cmake --preset={self.preset} -Wno-dev', env=env)
-        run(f'{emsdk_prefix} cmake --build --preset={self.preset}', env=env)  # Build
+        run(f'{emsdk_prefix} cmake --preset={self.preset} -Wno-dev')
+        run(f'{emsdk_prefix} cmake --build --preset={self.preset}')  # Build
 
     def deliver_qml(self) -> None:
         print(f'---Deliver qml build to repo root---')
