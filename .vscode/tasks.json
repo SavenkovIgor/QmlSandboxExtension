@@ -12,6 +12,9 @@
                 "--deliver-qml"
             ],
             "group": "build",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "label": "npm-watch",
