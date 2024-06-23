@@ -4,13 +4,19 @@
 
 ### Fixed
 
-* Screenshot button now visible only on qml webView tab - not on other tabs
-* On qml live update disabled the update button is now visible only on qml tabs
+* Screenshot button now visible only on qml webView tab - not on other tabs ([#125](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/125))
+* On qml live update disabled the update button is now visible only on qml tabs ([#127](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/127))
+* Rename qml module and main file to avoid conflicts with user files ([#132](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/132))
 
 ### Changed
 
-* Replace eye icon with run icon at file title
-* Switch to Qt 6.6.3
+* [refactor] Project script cleanup ([#130](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/130))
+* [refactor] Split emscripten interaction into two separate classes ([#131](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/131))
+
+### Changed
+
+* Replace eye icon with run icon at file title ([#123](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/123))
+* Switch to Qt 6.6.3 ([#120](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/120))
 * Tool version update
 
 ## v7.0.1
