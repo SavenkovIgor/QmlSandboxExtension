@@ -39,12 +39,12 @@
         {
           "command": "QmlSandboxExtension.updateWebView",
           "group": "navigation",
-          "when": "isQmlSandboxOpen && isQmlLiveUpdateEnabled == false && editorLangId == qml"
+          "when": "QmlSandbox.isOpen && isQmlLiveUpdateEnabled == false && editorLangId == qml"
         },
         {
           "command": "QmlSandboxExtension.screenshotQml",
           "group": "navigation",
-          "when": "isQmlSandboxOpen && isQmlSandboxActive"
+          "when": "QmlSandbox.isOpen && isQmlSandboxActive"
         }
       ],
       "editor/title/run": [
