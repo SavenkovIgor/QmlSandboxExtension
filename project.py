@@ -6,21 +6,19 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Dict, Optional
 
-qt_version = '6.6.3'
-emsdk_version = '3.1.37'
+QT_VERSION = '6.6.3'
+EMSDK_VERSION = '3.1.37'
 
 
-def run(command: str, env: Optional[Dict[str, str]] = None) -> None:
-    if subprocess.call(command, shell=True, executable='/bin/bash', env=env) != 0:
+def run(command: str) -> None:
+    if subprocess.call(command, shell=True, executable='/bin/bash') != 0:
         exit(1)
 
 
 def delete_if_exist(path: Path) -> None:
-    if path.exists():
-        print(f'Delete {path}')
-        run(f'rm -rf {path}')
+    print(f'Deleting {path}...')
+    shutil.rmtree(path, ignore_errors=True)
 
 
 class Project:
@@ -37,11 +35,9 @@ class Project:
         self.qt_root    = self.lib / 'Qt'
         self.emsdk_root = self.lib / 'emsdk'
 
-    def prepare_env(self) -> Dict[str, str]:
-        env = os.environ.copy()
-        env['QT_ROOT'] = str(self.qt_root)
-        env['QT_VERSION'] = qt_version
-        return env
+        # Prepare environment
+        os.environ.setdefault('QT_ROOT', str(self.qt_root))
+        os.environ.setdefault('QT_VERSION', QT_VERSION)
 
     def install_qt(self) -> None:
         print(f'---INSTALL {self.name}---')
@@ -50,13 +46,13 @@ class Project:
         # aqt list-qt linux desktop --long-modules <QT_VERSION> wasm_singlethread
 
         if not (self.qt_root).exists():
-            print(f'Installing Qt {qt_version} with aqtinstall tool')
+            print(f'Installing Qt {QT_VERSION} with aqtinstall tool')
             py_env_prefix = f'{self.venv_root}/bin/python -m '
             output_dir = f'--outputdir {self.qt_root}'
             modules = '--modules qtimageformats qt5compat qtshadertools qtquicktimeline qtquick3d'
             archives = '--archives qttranslations qttools qtsvg qtdeclarative qtbase icu'
-            run(f'{py_env_prefix} aqt install-qt linux desktop {qt_version} gcc_64 {output_dir} {modules} {archives}')
-            run(f'{py_env_prefix} aqt install-qt linux desktop {qt_version} wasm_singlethread {output_dir} {modules} {archives}')
+            run(f'{py_env_prefix} aqt install-qt linux desktop {QT_VERSION} gcc_64 {output_dir} {modules} {archives}')
+            run(f'{py_env_prefix} aqt install-qt linux desktop {QT_VERSION} wasm_singlethread {output_dir} {modules} {archives}')
         else:
             print(f'Qt already installed at {self.qt_root}')
 
@@ -66,18 +62,17 @@ class Project:
             os.chdir(self.emsdk_root.parent)
             run('git clone https://github.com/emscripten-core/emsdk.git')
             os.chdir(self.emsdk_root)
-            run(f'./emsdk install {emsdk_version}')
-            run(f'./emsdk activate {emsdk_version}')
+            run(f'./emsdk install {EMSDK_VERSION}')
+            run(f'./emsdk activate {EMSDK_VERSION}')
         else:
             print(f'emsdk already installed at {self.emsdk_root}')
 
     def build_qml(self) -> None:
         print(f'---Build of qml project---')
-        env = self.prepare_env()
         os.chdir(self.qml_sandbox_root)
         emsdk_prefix = f'source {self.emsdk_root}/emsdk_env.sh && '
-        run(f'{emsdk_prefix} cmake --preset={self.preset} -Wno-dev', env=env)
-        run(f'{emsdk_prefix} cmake --build --preset={self.preset}', env=env)  # Build
+        run(f'{emsdk_prefix} cmake --preset={self.preset} -Wno-dev')
+        run(f'{emsdk_prefix} cmake --build --preset={self.preset}')  # Build
 
     def deliver_qml(self) -> None:
         print(f'---Deliver qml build to repo root---')
