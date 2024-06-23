@@ -37,16 +37,16 @@ export class QmlWebView {
 
         this.view.onDidChangeViewState(event => {
             const isActive = event.webviewPanel.active;
-            vscode.commands.executeCommand('setContext', 'isQmlSandboxActive', isActive);
+            vscode.commands.executeCommand('setContext', 'QmlSandbox.isActive', isActive);
         });
 
         this.jRpcController.setHandler('ext.qmlLoaded', this.onQmlLoaded.bind(this));
         this.jRpcController.setHandler('ext.webViewThemeInfo', this.sendColorThemeToQml.bind(this));
 
-        vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', true);
+        vscode.commands.executeCommand('setContext', 'QmlSandbox.isOpen', true);
 
         this.view.onDidDispose(() => {
-            vscode.commands.executeCommand('setContext', 'isQmlSandboxOpen', false);
+            vscode.commands.executeCommand('setContext', 'QmlSandbox.isOpen', false);
             this.disposeHandler();
         }, null, subscriptions);
     }

@@ -66,6 +66,6 @@ export class QmlStatusBar {
     }
 
     private updateContext() {
-        vscode.commands.executeCommand('setContext', 'isQmlLiveUpdateEnabled', this.isLiveUpdate());
+        vscode.commands.executeCommand('setContext', 'QmlSandbox.isLiveUpdate', this.isLiveUpdate());
     }
 }
