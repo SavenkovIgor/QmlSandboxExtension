@@ -17,9 +17,8 @@ def run(command: str) -> None:
 
 
 def delete_if_exist(path: Path) -> None:
-    if path.exists():
-        print(f'Delete {path}')
-        run(f'rm -rf {path}')
+    print(f'Deleting {path}...')
+    shutil.rmtree(path, ignore_errors=True)
 
 
 class Project:
