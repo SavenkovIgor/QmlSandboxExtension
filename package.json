@@ -44,7 +44,7 @@
         {
           "command": "QmlSandboxExtension.screenshotQml",
           "group": "navigation",
-          "when": "QmlSandbox.isOpen && isQmlSandboxActive"
+          "when": "QmlSandbox.isOpen && QmlSandbox.isActive"
         }
       ],
       "editor/title/run": [

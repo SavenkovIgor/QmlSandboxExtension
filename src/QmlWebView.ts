@@ -37,7 +37,7 @@ export class QmlWebView {
 
         this.view.onDidChangeViewState(event => {
             const isActive = event.webviewPanel.active;
-            vscode.commands.executeCommand('setContext', 'isQmlSandboxActive', isActive);
+            vscode.commands.executeCommand('setContext', 'QmlSandbox.isActive', isActive);
         });
 
         this.jRpcController.setHandler('ext.qmlLoaded', this.onQmlLoaded.bind(this));
