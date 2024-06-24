@@ -17,13 +17,13 @@ To get started:
 
 1. Open or create a file with QML content
 1. Check at the bottom right corner that `QML` language is detected properly
-1. Click on the `eye` icon appeared at the top right corner of your QML file or
+1. Click on the `run` icon appeared at the top right corner of your QML file or
  press `Ctrl+Shift+Q` to open the preview window
 
 ## Features
 
 - **Preview QML:** This extension allows you to preview standalone QML files in
-a sandbox environment. To open the preview window, simply click on the `eye`
+a sandbox environment. To open the preview window, simply click on the `run`
 icon located at the top-right corner of your QML file, use the
 `Open QML Sandbox` command, or press `Ctrl+Shift+Q`.
 
@@ -39,6 +39,12 @@ the `Screenshot QML Scene` command.
 disable this updates, click the `QML Live-update` item in the status bar
 when the QML WebView is open. After disabling live-update, an icon for manual
 QML sandbox tab update will appear at the top of code editor.
+
+- **Special Qml Engine modes**: You can switch between different QML engine
+view modes like Overdraw, Batches and Clip, using dropdown menu in `run` button.
+Overdraw mode shows the layers of your QML scene in 3D space.
+Batches mode shows the separate batches that are rendered in your QML scene.
+Clip mode shows the clipping regions of your QML scene.
 
 ![QML Live-update](resources/status_bar.png)
 
