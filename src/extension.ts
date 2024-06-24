@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as os from 'os';
 import { QmlStatusBar } from './qmlStatusBar';
-import { QmlWebView } from './QmlWebView';
+import { QmlWebView, ViewMode } from './QmlWebView';
 
 const extPrefix = 'QmlSandboxExtension';
 const defaultTitle = 'Qml Sandbox';
@@ -21,27 +21,17 @@ export function activate(context: vscode.ExtensionContext) {
     qmlStatusBar = new QmlStatusBar(extPrefix, context);
     outputChannel = vscode.window.createOutputChannel(defaultTitle);
 
-    const qmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
-        if (qmlWebView) {
-            qmlWebView.reveal();
-            return;
-        }
-
-        qmlWebView = new QmlWebView(qmlEngineDir, context.subscriptions);
-        qmlStatusBar?.reset();
-        qmlStatusBar?.show();
-
-        qmlWebView.onNewSetDiagnostics(setDiagnostics);
-        qmlWebView.onNewLog(addLogOrDiagnostic);
-        qmlWebView.onNewSaveScreenshot(saveScreenshot);
-        qmlWebView.onOpenExample(openExample);
-
-        qmlWebView.onDispose(() => {
-            qmlWebView = null;
-            qmlStatusBar?.hide();
-        });
-
-        qmlWebView.loadHtml();
+    const openQmlSandboxDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox`, () => {
+        reopenQmlSandboxIfNeeded(qmlEngineDir, context, ViewMode.none);
+    });
+    const openQmlSandboxWithOverdrawDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox.withOverdraw`, () => {
+        reopenQmlSandboxIfNeeded(qmlEngineDir, context, ViewMode.overdraw);
+    });
+    const openQmlSandboxWithBatchesDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox.withBatches`, () => {
+        reopenQmlSandboxIfNeeded(qmlEngineDir, context, ViewMode.batches);
+    });
+    const openQmlSandboxWithClipDisposable = vscode.commands.registerCommand(`${extPrefix}.openQmlSandbox.withClip`, () => {
+        reopenQmlSandboxIfNeeded(qmlEngineDir, context, ViewMode.clip);
     });
 
     const screenshotQmlDisposable = vscode.commands.registerCommand(`${extPrefix}.screenshotQml`, () => {
@@ -74,11 +64,45 @@ export function activate(context: vscode.ExtensionContext) {
 
     diagnosticCollection = vscode.languages.createDiagnosticCollection(defaultTitle);
 
-    context.subscriptions.push(qmlSandboxDisposable);
+    context.subscriptions.push(openQmlSandboxDisposable);
+    context.subscriptions.push(openQmlSandboxWithOverdrawDisposable);
+    context.subscriptions.push(openQmlSandboxWithBatchesDisposable);
+    context.subscriptions.push(openQmlSandboxWithClipDisposable);
     context.subscriptions.push(screenshotQmlDisposable);
     context.subscriptions.push(updateWebViewCmd);
     context.subscriptions.push(editorChange);
     context.subscriptions.push(textChange);
+}
+
+function reopenQmlSandboxIfNeeded(qmlEngineDir: vscode.Uri, context: vscode.ExtensionContext, mode: ViewMode) {
+    if (qmlWebView) {
+        if (qmlWebView.currentViewMode() === mode) {
+            qmlWebView.reveal();
+            return;
+        } else {
+            qmlWebView.dispose();
+        }
+    }
+
+    openQmlSandbox(qmlEngineDir, context, mode);
+}
+
+function openQmlSandbox(qmlEngineDir: vscode.Uri, context: vscode.ExtensionContext, mode: ViewMode) {
+    qmlWebView = new QmlWebView(qmlEngineDir, context.subscriptions, mode);
+    qmlStatusBar?.reset();
+    qmlStatusBar?.show();
+
+    qmlWebView.onNewSetDiagnostics(setDiagnostics);
+    qmlWebView.onNewLog(addLogOrDiagnostic);
+    qmlWebView.onNewSaveScreenshot(saveScreenshot);
+    qmlWebView.onOpenExample(openExample);
+
+    qmlWebView.onDispose(() => {
+        qmlWebView = null;
+        qmlStatusBar?.hide();
+    });
+
+    qmlWebView.loadHtml();
 }
 
 function currentEditor(): vscode.TextEditor | undefined {
