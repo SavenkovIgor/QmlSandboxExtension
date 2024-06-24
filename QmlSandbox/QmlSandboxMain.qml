@@ -309,6 +309,7 @@ Window {
                     ExampleLink { text: wrapLink('CubicWave.qml', 'CubicWave') + ' - simple animation with rotating rectangles' }
                     ExampleLink { text: wrapLink('Logo.qml', 'Logo') + ' - this extension logo' }
                     ExampleLink { text: wrapLink('CompatibilityEffect.qml', 'FastBlur') + ' - fast blur effect from Qt5Compat module' }
+                    ExampleLink { text: wrapLink('QtQuick3D.qml', 'QtQuick3D') + ' - simple 3D scene with QtQuick3D' }
                 }
             }
         }
