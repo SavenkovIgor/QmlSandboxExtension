@@ -1,12 +1,20 @@
 import * as vscode from 'vscode';
 import { JRpcController } from './JRpcController';
 
+export enum ViewMode {
+    none = 'none',
+    overdraw = 'overdraw',
+    batches = 'batches',
+    clip = 'clip',
+}
+
 export class QmlWebView {
     private defaultTitle = 'Qml Sandbox';
     private jRpcController = new JRpcController();
     private qmlEngineDir: vscode.Uri;
     private disposeHandler: Function = () => { };
     private view: vscode.WebviewPanel;
+    private viewMode: ViewMode = ViewMode.none;
     // https://code.visualstudio.com/api/references/theme-color
     private vscodeColorKeys: string[] = [
         'editor.background',
@@ -19,7 +27,7 @@ export class QmlWebView {
         'button.hoverBackground',
     ];
 
-    constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[]) {
+    constructor(qmlEngineDir: vscode.Uri, subscriptions: vscode.Disposable[], mode: ViewMode = ViewMode.none) {
         this.qmlEngineDir = qmlEngineDir;
         this.view = vscode.window.createWebviewPanel(
             'qmlSandbox',
@@ -30,6 +38,7 @@ export class QmlWebView {
                 localResourceRoots: [qmlEngineDir]
             }
         );
+        this.viewMode = mode;
 
         this.view.webview.onDidReceiveMessage(jRpc => {
             this.jRpcController.receiveJRcpFromQml(jRpc);
@@ -40,6 +49,7 @@ export class QmlWebView {
             vscode.commands.executeCommand('setContext', 'QmlSandbox.isActive', isActive);
         });
 
+        this.jRpcController.setHandler('ext.qtLoaded', this.onQtLoaded.bind(this));
         this.jRpcController.setHandler('ext.qmlLoaded', this.onQmlLoaded.bind(this));
         this.jRpcController.setHandler('ext.webViewThemeInfo', this.sendColorThemeToQml.bind(this));
 
@@ -82,6 +92,10 @@ export class QmlWebView {
         });
     }
 
+    public currentViewMode(): ViewMode {
+        return this.viewMode;
+    }
+
     public reveal() {
         this.view.reveal();
     }
@@ -90,10 +104,23 @@ export class QmlWebView {
         this.sendJRpc('qml.makeScreenshot', []);
     }
 
+    public sendVisualizeMode() {
+        this.sendJRpc('qt.setVisualizeMode', this.viewMode);
+    }
+
     public setQml(filename: string, qmlSource: string) {
         // Set title of current file
         this.view.title = `${this.defaultTitle} - ${filename}`;
         this.sendJRpc('qml.update', { file: filename, source: qmlSource });
+    }
+
+    public dispose() {
+        this.view.dispose();
+    }
+
+    private onQtLoaded() {
+        this.sendVisualizeMode();
+        this.sendJRpc('qt.initQml', {});
     }
 
     private onQmlLoaded() {
