@@ -19,19 +19,40 @@
   "contributes": {
     "commands": [
       {
+        "category": "Qml Sandbox",
         "command": "QmlSandboxExtension.openQmlSandbox",
         "title": "Open Qml Sandbox",
-        "icon": "$(run)"
+        "icon": "$(play)"
       },
       {
+        "category": "Qml Sandbox",
+        "command": "QmlSandboxExtension.openQmlSandbox.withOverdraw",
+        "title": "Open Qml Sandbox in Overdraw mode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "category": "Qml Sandbox",
+        "command": "QmlSandboxExtension.openQmlSandbox.withBatches",
+        "title": "Open Qml Sandbox in Batches mode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "category": "Qml Sandbox",
+        "command": "QmlSandboxExtension.openQmlSandbox.withClip",
+        "title": "Open Qml Sandbox in Clip mode",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "category": "Qml Sandbox",
         "command": "QmlSandboxExtension.screenshotQml",
         "title": "Screenshot Qml Scene",
         "icon": "$(device-camera)"
       },
       {
+        "category": "Qml Sandbox",
         "command": "QmlSandboxExtension.updateWebView",
         "title": "Update Qml WebView",
-        "icon": "$(sync)"
+        "icon": "$(refresh)"
       }
     ],
     "menus": {
@@ -50,7 +71,22 @@
       "editor/title/run": [
         {
           "command": "QmlSandboxExtension.openQmlSandbox",
-          "group": "navigation",
+          "group": "1_run@0",
+          "when": "editorLangId == qml"
+        },
+        {
+          "command": "QmlSandboxExtension.openQmlSandbox.withOverdraw",
+          "group": "1_run@1",
+          "when": "editorLangId == qml"
+        },
+        {
+          "command": "QmlSandboxExtension.openQmlSandbox.withBatches",
+          "group": "1_run@2",
+          "when": "editorLangId == qml"
+        },
+        {
+          "command": "QmlSandboxExtension.openQmlSandbox.withClip",
+          "group": "1_run@3",
           "when": "editorLangId == qml"
         }
       ]

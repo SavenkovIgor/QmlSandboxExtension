@@ -35,7 +35,7 @@ void EmscriptenApi::removeExecutor(CommandExecutor *executor) {
 void EmscriptenApi::onReceiveJRpcFromExtension(std::string jRpc) {
   auto doc = QJsonDocument::fromJson(QByteArray::fromStdString(jRpc));
   auto jRpcObj = doc.object();
-  QString cmd_name = jRpcObj["command"].toString();
+  QString cmd_name = jRpcObj["method"].toString();
   bool received = false;
   for (auto *executor : command_executors) {
     if (executor->canExecute(cmd_name)) {
@@ -43,8 +43,8 @@ void EmscriptenApi::onReceiveJRpcFromExtension(std::string jRpc) {
       received = true;
     }
   }
-  assert(received);
   if (!received) {
     qWarning() << "No executor found for command" << cmd_name;
   }
+  assert(received);
 }

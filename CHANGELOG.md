@@ -12,12 +12,10 @@
 
 * [refactor] Project script cleanup ([#130](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/130))
 * [refactor] Split emscripten interaction into two separate classes ([#131](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/131))
-
-### Changed
-
 * Replace eye icon with run icon at file title ([#123](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/123))
 * Switch to Qt 6.6.3 ([#120](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/120))
 * Tool version update
+* Added new QmlEngine modes: Overdraw, Batches and Clip ([#136](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/136))
 
 ## v7.0.1
 

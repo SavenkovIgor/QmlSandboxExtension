@@ -19,11 +19,15 @@ qt_standard_project_setup(REQUIRES 6.6)
 qt_add_executable (QmlSandbox
     emscripten_api.cpp
     emscripten_api.h
+    init_tools.cpp
+    init_tools.h
     log_catcher.cpp
     log_catcher.h
     main.cpp
     qml_emscripten_api.cpp
     qml_emscripten_api.h
+    qml_engine_controller.cpp
+    qml_engine_controller.h
     sandbox_tools.cpp
     sandbox_tools.h)
 
