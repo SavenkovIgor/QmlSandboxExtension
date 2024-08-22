@@ -69,7 +69,7 @@ jobs:
       run: npm install
 
     - name: GitHub Action for vsce
-      uses: lannonbr/vsce-action@3.0.0
+      uses: lannonbr/vsce-action@4.0.0
       with:
         args: package
 
@@ -85,6 +85,6 @@ jobs:
 
     - name: Publish to Marketplace
       if: startsWith(github.ref, 'refs/tags/v') && success()
-      uses: lannonbr/vsce-action@3.0.0
+      uses: lannonbr/vsce-action@4.0.0
       with:
         args: publish -p ${{ secrets.VSCE_TOKEN }}
