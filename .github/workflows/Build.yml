@@ -21,7 +21,7 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Install latest cmake and ninja
       uses: lukka/get-cmake@latest
@@ -74,7 +74,7 @@ jobs:
         args: package
 
     - name: Upload .vsix file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Extension
         path: '*.vsix'
