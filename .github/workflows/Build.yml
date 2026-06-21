@@ -21,13 +21,13 @@ jobs:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Install latest cmake and ninja
       uses: lukka/get-cmake@latest
 
     - name: Install EmSdk
-      uses: mymindstorm/setup-emsdk@v14
+      uses: mymindstorm/setup-emsdk@v16
       with:
         version: ${{ env.WASM_VERSION }}
         actions-cache-folder: 'lib/emsdk-cache'
@@ -74,7 +74,7 @@ jobs:
         args: package
 
     - name: Upload .vsix file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: Extension
         path: '*.vsix'
