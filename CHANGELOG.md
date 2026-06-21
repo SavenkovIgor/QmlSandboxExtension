@@ -1,5 +1,16 @@
 # Changelog
 
+## v8.0.2
+
+### Security
+
+* Patched vulnerable transitive dependencies in the extension toolchain, including `js-yaml`, `flatted`, `braces`, `picomatch`, `serialize-javascript`, and `minimatch` ([#148](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/148), [#149](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/149), [#150](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/150), [#152](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/152), [#154](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/154), [#155](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/155), [#159](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/159)).
+* Updated security-adjacent test/dev dependencies, including `@tootallnate/once`, `@vscode/test-electron`, and `mocha` ([#148](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/148), [#150](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/150), [#152](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/152), [#153](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/153)).
+
+### Changed
+
+* Updated CI and release workflow actions to newer major versions (`actions/checkout`, `actions/upload-artifact`, `mymindstorm/setup-emsdk`, `lannonbr/vsce-action`) ([#143](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/143), [#146](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/146), [#151](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/151), [#157](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/157), [#158](https://github.com/SavenkovIgor/QmlSandboxExtension/pull/158)).
+
 ## v8.0.1
 
 ### Fixed
