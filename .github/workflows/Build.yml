@@ -10,9 +10,9 @@ on:
 
 env:
   QT_ROOT: ${{ github.workspace }}/lib/Qt
-  QT_VERSION: 6.6.3
-  WASM_VERSION: 3.1.37
-  AQT_VERSION: ==3.1.6
+  QT_VERSION: 6.11.1
+  WASM_VERSION: 4.0.7
+  AQT_VERSION: ==3.3.0
   QT_MODULES: 'qtimageformats qt5compat qtshadertools qtquicktimeline qtquick3d'
   QT_ARCHIVES: 'qttranslations qttools qtsvg qtdeclarative qtbase icu'
 
@@ -27,10 +27,10 @@ jobs:
       uses: lukka/get-cmake@latest
 
     - name: Install EmSdk
-      uses: mymindstorm/setup-emsdk@v16
+      uses: emscripten-core/setup-emsdk@v16
       with:
         version: ${{ env.WASM_VERSION }}
-        actions-cache-folder: 'lib/emsdk-cache'
+        actions-cache-folder: 'emsdk-cache'
 
     - name: Install Qt for gcc_64
       uses: jurplel/install-qt-action@v4

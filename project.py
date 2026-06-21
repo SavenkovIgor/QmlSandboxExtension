@@ -7,8 +7,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-QT_VERSION = '6.6.3'
-EMSDK_VERSION = '3.1.37'
+QT_VERSION = '6.11.1'
+EMSDK_VERSION = '4.0.7'
 
 
 def run(command: str) -> None:

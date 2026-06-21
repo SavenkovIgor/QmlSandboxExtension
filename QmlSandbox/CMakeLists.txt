@@ -14,7 +14,7 @@ set (CMAKE_CXX_STANDARD 20)
 
 find_package (Qt6 REQUIRED COMPONENTS Quick Quick3D)
 
-qt_standard_project_setup(REQUIRES 6.6)
+qt_standard_project_setup(REQUIRES 6.11)
 
 qt_add_executable (QmlSandbox
     emscripten_api.cpp
